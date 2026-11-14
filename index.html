@@ -380,6 +380,28 @@
           class="w-full bg-white rounded-xl p-2.5 text-xs border border-pink-pastel focus:outline-none focus:border-pink-deep resize-none leading-relaxed"
         ></textarea>
 
+        <!-- انتخابگر تعداد نفرات هدف برای محاسبه خودکار مقادیر مواد اولیه -->
+        <div class="mt-2 bg-white/95 rounded-xl px-2.5 py-2 border border-pink-pastel flex flex-wrap items-center justify-between gap-2">
+          <label class="text-[11px] font-bold text-pink-deep flex items-center gap-1">
+            <span>👥</span>
+            <span>این دستور برای چند نفر تنظیم و ثبت بشه؟</span>
+          </label>
+          <div class="flex items-center gap-1">
+            <select id="ai-target-servings" class="bg-pink-soft/80 border border-pink-pastel rounded-lg px-2 py-1 text-[11px] font-bold text-pink-deep focus:outline-none focus:border-pink-deep">
+              <option value="auto">طبق خودِ متن (بدون تغییر)</option>
+              <option value="1">۱ نفر</option>
+              <option value="2">۲ نفر (دونفره ♡)</option>
+              <option value="3">۳ نفر</option>
+              <option value="4">۴ نفر</option>
+              <option value="5">۵ نفر</option>
+              <option value="6">۶ نفر</option>
+              <option value="8">۸ نفر (مهمانی)</option>
+              <option value="10">۱۰ نفر</option>
+              <option value="12">۱۲ نفر</option>
+            </select>
+          </div>
+        </div>
+
         <div class="flex items-center justify-between gap-2 mt-2">
           <button
             type="button"
@@ -395,7 +417,7 @@
             onclick="parseMessyRecipeWithAI()"
             class="flex-1 bg-gradient-to-l from-pink-deep via-[#C95C74] to-rose-gold text-white rounded-xl py-2 px-3 text-xs font-bold shadow-ribbon flex items-center justify-center gap-1.5 active:scale-95 transition"
           >
-            <span>✨ مرتب‌سازی و پر کردن خودکار فرم</span>
+            <span>✨ تفکیک دقیق و محاسبه مقادیر</span>
           </button>
         </div>
         <p id="ai-parse-status" class="hidden text-[11px] text-pink-deep font-bold mt-1.5 text-center"></p>
@@ -445,6 +467,17 @@
           <div>
             <label class="block text-[11px] font-bold text-pink-deep mb-1">🍲 مدت پخت</label>
             <input type="text" id="field-cook" placeholder="۱ ساعت" class="w-full bg-pink-soft/60 border border-pink-pastel rounded-xl px-2 py-2 text-xs focus:outline-none focus:border-pink-deep" />
+          </div>
+        </div>
+
+        <!-- دکمه تغییر سریع مقادیر مواد اولیه داخل فرم بر اساس نفرات جدید -->
+        <div class="bg-pink-soft/45 rounded-xl px-3 py-2 border border-pink-pastel flex items-center justify-between gap-2">
+          <span class="text-[11px] font-bold text-pink-deep">⚖️ تغییر خودکار مقادیر مواد برای:</span>
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="rescaleFormIngredients(2)" class="bg-white hover:bg-pink-soft text-pink-deep border border-pink-pastel rounded-lg px-2 py-1 text-[10px] font-bold">۲ نفر</button>
+            <button type="button" onclick="rescaleFormIngredients(4)" class="bg-white hover:bg-pink-soft text-pink-deep border border-pink-pastel rounded-lg px-2 py-1 text-[10px] font-bold">۴ نفر</button>
+            <button type="button" onclick="rescaleFormIngredients(6)" class="bg-white hover:bg-pink-soft text-pink-deep border border-pink-pastel rounded-lg px-2 py-1 text-[10px] font-bold">۶ نفر</button>
+            <button type="button" onclick="rescaleFormIngredients(8)" class="bg-white hover:bg-pink-soft text-pink-deep border border-pink-pastel rounded-lg px-2 py-1 text-[10px] font-bold">۸ نفر</button>
           </div>
         </div>
 
@@ -881,7 +914,12 @@
           <div class="bg-pink-soft/65 rounded-2xl p-3.5 rose-border">
             <div class="flex items-center justify-between mb-2 border-b border-pink-pastel pb-1.5">
               <h3 class="font-bold text-base text-pink-deep">🧺 مواد اولیه</h3>
-              <span class="text-[10px] text-pink-dusty no-print">لمس برای تیک زدن</span>
+              <div class="flex items-center gap-1 no-print">
+                <span class="text-[10px] text-pink-dusty">تنظیم نفرات:</span>
+                <button onclick="scaleSavedRecipeServings('${recipe.id}', -1)" class="w-5 h-5 rounded-md bg-white border border-pink-pastel text-pink-deep font-bold text-xs flex items-center justify-center leading-none">−</button>
+                <span class="text-[11px] font-bold text-pink-deep px-1">${recipe.servings ? escapeHtml(recipe.servings) : '۴ نفر'}</span>
+                <button onclick="scaleSavedRecipeServings('${recipe.id}', 1)" class="w-5 h-5 rounded-md bg-white border border-pink-pastel text-pink-deep font-bold text-xs flex items-center justify-center leading-none">+</button>
+              </div>
             </div>
             <ul class="space-y-2 text-xs">
               ${(recipe.ingredients || []).map((item, idx) => {
@@ -946,6 +984,8 @@
       document.getElementById('ai-parse-status')?.classList.add('hidden');
       const rawInput = document.getElementById('ai-raw-recipe-text');
       if (rawInput) rawInput.value = '';
+      const targetServSel = document.getElementById('ai-target-servings');
+      if (targetServSel) targetServSel.value = 'auto';
 
       const savedKey = safeStorage.get(STORAGE_KEYS.API_KEY, '');
       const keyInput = document.getElementById('gemini-api-key-input');
@@ -1034,33 +1074,234 @@
       throw new Error('AI request failed');
     }
 
-    // تفکیک‌کننده هوشمند محلی (Fallback) اگر روی گیت‌هاب کلید API وارد نشده باشد یا اینترنت قطع باشد
-    function smartLocalParseRecipe(rawText) {
-      const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    // =========================================================================
+    // ابزارهای تبدیل اعداد فارسی، استخراج تعداد نفرات و مقیاس‌دهی دقیق مقادیر مواد اولیه
+    // =========================================================================
+    function toEnglishDigits(str) {
+      if (!str) return '';
+      const persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+      const arabic  = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+      let res = str.toString();
+      for (let i = 0; i < 10; i++) {
+        res = res.replace(new RegExp(persian[i], 'g'), i).replace(new RegExp(arabic[i], 'g'), i);
+      }
+      return res;
+    }
+
+    function extractServingNumber(servingsStr, fallback = 4) {
+      if (!servingsStr) return fallback;
+      const en = toEnglishDigits(servingsStr);
+      const wordMap = { 'یک': 1, 'دو': 2, 'سه': 3, 'چهار': 4, 'پنج': 5, 'شش': 6, 'هفت': 7, 'هشت': 8, 'نه': 9, 'ده': 10, 'دوازده': 12 };
+      const nums = en.match(/\d+(?:\.\d+)?/g);
+      if (nums && nums.length > 0) {
+        if (nums.length >= 2 && (en.includes('تا') || en.includes('-') || en.includes('الی'))) {
+          return Math.round((parseFloat(nums[0]) + parseFloat(nums[1])) / 2);
+        }
+        const n = parseFloat(nums[0]);
+        if (n > 0 && n <= 100) return n;
+      }
+      for (const [w, val] of Object.entries(wordMap)) {
+        if (en.includes(w)) return val;
+      }
+      return fallback;
+    }
+
+    function formatScaledAmount(val) {
+      if (val <= 0) return '';
+      const rounded = Math.round(val * 4) / 4; // گرد کردن به ضرایب ۰.۲۵ (ربع، نیم، سه چهارم)
+      const whole = Math.floor(rounded);
+      const frac = rounded - whole;
+
+      let fracStr = '';
+      if (Math.abs(frac - 0.25) < 0.05) fracStr = ' و یک‌چهارم';
+      else if (Math.abs(frac - 0.5) < 0.05) fracStr = whole === 0 ? 'نصف' : ' و نیم';
+      else if (Math.abs(frac - 0.75) < 0.05) fracStr = ' و سه‌چهارم';
+
+      if (whole === 0 && fracStr) return fracStr.replace(/^ و /, '');
+      if (fracStr && whole < 15) return `${toPersianDigits(whole)}${fracStr}`;
+      // برای مقادیر بزرگ مثل گرم (مثلاً ۱۲۵ گرم) به عدد رند تبدیل کن
+      if (whole >= 20) return toPersianDigits(Math.round(val / 5) * 5);
+      return toPersianDigits(Number.isInteger(rounded) ? rounded : Number(rounded.toFixed(1)));
+    }
+
+    function scaleSingleIngredientLine(line, ratio) {
+      if (!line || Math.abs(ratio - 1) < 0.03) return line;
+      let normalized = toEnglishDigits(line);
+
+      // تبدیل کلمات عددی رایج در ابتدای مقدار به عدد قبل از ضریب دادن
+      normalized = normalized
+        .replace(/(\b|^)یک و نیم(\b|$)/g, '1.5')
+        .replace(/(\b|^)دو و نیم(\b|$)/g, '2.5')
+        .replace(/(\b|^)نصف(\b|$)/g, '0.5')
+        .replace(/(\b|^)نیم(\b|$)/g, '0.5')
+        .replace(/(\b|^)یک چهارم(\b|$)/g, '0.25')
+        .replace(/(\b|^)یک سوم(\b|$)/g, '0.33')
+        .replace(/(\b|^)یک دوم(\b|$)/g, '0.5')
+        .replace(/(\b|^)یک(\s+)(پیمانه|لیوان|قاشق|عدد|حبه|بسته|کیلو|کاسه)/g, '1$2$3')
+        .replace(/(\b|^)دو(\s+)(پیمانه|لیوان|قاشق|عدد|حبه|بسته|کیلو|کاسه)/g, '2$2$3')
+        .replace(/(\b|^)سه(\s+)(پیمانه|لیوان|قاشق|عدد|حبه|بسته|کیلو|کاسه)/g, '3$2$3')
+        .replace(/(\b|^)چهار(\s+)(پیمانه|لیوان|قاشق|عدد|حبه|بسته|کیلو|کاسه)/g, '4$2$3');
+
+      // تبدیل کسرهایی مثل 1/2 یا 1/4
+      normalized = normalized.replace(/(\d+)\s*\/\s*(\d+)/g, (_, a, b) => {
+        const d = parseFloat(b);
+        return d !== 0 ? (parseFloat(a) / d).toString() : _;
+      });
+
+      // ضرب کردن اعداد در ضریب نفرات جدید
+      const scaled = normalized.replace(/\d+(?:\.\d+)?/g, (match) => {
+        const num = parseFloat(match);
+        if (isNaN(num) || num === 0) return toPersianDigits(match);
+        return formatScaledAmount(num * ratio);
+      });
+
+      return toPersianDigits(scaled);
+    }
+
+    function scaleIngredientsList(ingredients, fromServings, toServings) {
+      const fromNum = extractServingNumber(fromServings, 4);
+      const toNum = extractServingNumber(toServings, 4);
+      if (!fromNum || !toNum || fromNum === toNum) return ingredients;
+      const ratio = toNum / fromNum;
+      return (ingredients || []).map(item => scaleSingleIngredientLine(item, ratio));
+    }
+
+    function rescaleFormIngredients(newTargetCount) {
+      const servInput = document.getElementById('field-servings');
+      const ingInput = document.getElementById('field-ingredients');
+      const currentLines = ingInput.value.split('\n').map(l => l.trim()).filter(Boolean);
+      if (currentLines.length === 0) {
+        servInput.value = `${toPersianDigits(newTargetCount)} نفر`;
+        showToast(`تعداد نفرات روی ${toPersianDigits(newTargetCount)} نفر تنظیم شد 👥`);
+        return;
+      }
+      const oldCount = extractServingNumber(servInput.value, 4);
+      if (oldCount === newTargetCount) {
+        showToast(`مقادیر همین الان برای ${toPersianDigits(newTargetCount)} نفر است ♡`);
+        return;
+      }
+      const scaled = scaleIngredientsList(currentLines, oldCount, newTargetCount);
+      ingInput.value = scaled.join('\n');
+      servInput.value = `${toPersianDigits(newTargetCount)} نفر`;
+      showToast(`مقادیر مواد اولیه برای ${toPersianDigits(newTargetCount)} نفر محاسبه شد ⚖️`);
+    }
+
+    function scaleSavedRecipeServings(recipeId, delta) {
+      const idx = recipes.findIndex(r => r.id === recipeId);
+      if (idx === -1) return;
+      const r = recipes[idx];
+      const currentCount = extractServingNumber(r.servings, 4);
+      const nextCount = Math.max(1, Math.min(30, currentCount + delta));
+      if (nextCount === currentCount) return;
+
+      r.ingredients = scaleIngredientsList(r.ingredients || [], currentCount, nextCount);
+      r.servings = `${toPersianDigits(nextCount)} نفر`;
+      saveRecipesToStorage();
+      renderRecipeDetail(recipeId);
+      showToast(`مقادیر برای ${toPersianDigits(nextCount)} نفر تنظیم شد 👥`);
+    }
+
+    // =========================================================================
+    // موتور تفکیک‌کننده پیشرفته فارسی (تشخیص دقیق مواد اولیه از مراحل پخت)
+    // =========================================================================
+    function isCookingStepSentence(text) {
+      // افعال آشپزی فارسی که قطعاً نشان‌دهنده مرحله پخت هستند نه ماده اولیه
+      const cookingVerbs = /(می‌کنیم|میکنیم|می‌ریزیم|میریزیم|می‌گذاریم|میگذاریم|می‌ذاریم|میذاریم|تفت|سرخ|اضافه|مخلوط|هم می‌زنیم|هم میزنیم|بپزد|بپزه|دم بکشد|دم بکشه|خرد کنید|خرد می‌کنیم|رنده|آبکش|فر را|حرارت|شعله|بگذارید|بریزید|بزنید|برمی‌داریم|سرو|تزئین|تزیین|آغشته|استراحت|ورز|پوره|جوش بیاید|جوش بیاد|کف آن|در ظرف|داخل تابه|در قابلمه)/;
+      if (cookingVerbs.test(text)) return true;
+      // جملات طولانی بیش از ۶۵ کاراکتر یا بیش از ۱۰ کلمه قطعاً مرحله پخت هستند
+      const wordCount = text.split(/\s+/).length;
+      if (text.length > 65 || wordCount > 10) return true;
+      return false;
+    }
+
+    function isIngredientItem(text) {
+      if (!text || isCookingStepSentence(text)) return false;
+      const wordCount = text.split(/\s+/).length;
+      if (wordCount > 9) return false;
+
+      const units = /(گرم|کیلو|کیلوگرم|پیمانه|لیوان|قاشق|غذاخوری|چایخوری|چای‌خوری|مرباخوری|عدد|حبه|بسته|ورق|شاخه|پنس|چشم|مقدار|به میزان لازم|به مقدار لازم|کمی|نصف|یک سوم|یک چهارم|سینه|ران|برگ|قالب|کاسه|فنجان|استکان|پیاز|سیر|نمک|فلفل|زردچوبه|روغن|کره|شکر|آرد|تخم مرغ|تخم‌مرغ|شیر|ماست|رب|برنج|گوشت|مرغ|جعفری|گشنیز|زعفران)/;
+      const hasNumber = /[۰-۹0-9]/.test(text) || /(\b|^)(یک|دو|سه|چهار|پنج|شش|نصف|نیم)(\b|\s)/.test(text);
+      const hasColonShort = text.includes(':') && text.length < 55;
+
+      return hasColonShort || (hasNumber && units.test(text)) || (wordCount <= 5 && units.test(text));
+    }
+
+    function extractInlineIngredientsAndSteps(rawText) {
+      // اگر کاربر متنی داده که در یک خط با ویرگول مواد اولیه را پشت سر هم نوشته، آن‌ها را بشکنیم
+      const normalized = rawText
+        .replace(/(\s*)(مواد لازم|مواد اولیه|ترکیبات)\s*[:\-]?(\s*)/gi, '\n$2:\n')
+        .replace(/(\s*)(طرز تهیه|مراحل پخت|روش تهیه|روش پخت|دستور پخت)\s*[:\-]?(\s*)/gi, '\n$2:\n')
+        .replace(/(\s*)(نکات|نکته|فوت و فن|فوت‌وفن)\s*[:\-]?(\s*)/gi, '\n$2:\n');
+
+      const rawLines = normalized.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const expandedLines = [];
+
+      let currentSection = 'auto';
+      for (const line of rawLines) {
+        if (/^(مواد لازم|مواد اولیه|ترکیبات)\s*[:\-]?$/i.test(line)) {
+          currentSection = 'ing';
+          expandedLines.push(line);
+          continue;
+        }
+        if (/^(طرز تهیه|مراحل پخت|روش تهیه|روش پخت|دستور پخت)\s*[:\-]?$/i.test(line)) {
+          currentSection = 'step';
+          expandedLines.push(line);
+          continue;
+        }
+
+        // اگر در بخش مواد لازم هستیم و چند ماده با ویرگول فارسی «،» در یک خط آمده‌اند
+        if ((currentSection === 'ing' || (!isCookingStepSentence(line) && (line.match(/،/g) || []).length >= 2)) && line.includes('،')) {
+          const parts = line.split('،').map(p => p.trim()).filter(Boolean);
+          if (parts.every(p => p.split(/\s+/).length <= 6 && !isCookingStepSentence(p))) {
+            expandedLines.push(...parts);
+            continue;
+          }
+        }
+
+        // اگر یک پاراگراف بلند از مراحل پخت است، بر اساس نقطه یا جملات آشپزی به مراحل شماره‌دار بشکنیم
+        if (line.length > 130 && isCookingStepSentence(line)) {
+          const sentences = line
+            .split(/(?<=[.!؟])\s+|\s+(?=(?:سپس|بعد از آن|در ادامه|حالا|در نهایت|در آخر)\s)/)
+            .map(s => s.trim())
+            .filter(s => s.length > 3);
+          if (sentences.length > 1) {
+            expandedLines.push(...sentences);
+            continue;
+          }
+        }
+
+        expandedLines.push(line);
+      }
+
+      return expandedLines;
+    }
+
+    function smartLocalParseRecipe(rawText, targetServingsVal = 'auto') {
+      const lines = extractInlineIngredientsAndSteps(rawText);
       let title = '';
       let category = document.getElementById('field-category').value || 'rice';
       let servings = '';
       let prepTime = '';
       let cookTime = '';
       let difficulty = 0;
-      const ingredients = [];
+      let ingredients = [];
       const steps = [];
       const notes = [];
 
       let mode = 'auto'; // 'ing', 'step', 'note'
 
       const catKeywords = [
-        { id: 'rice', words: ['پلو', 'چلو', 'ته چین', 'ته‌چین', 'برنج', 'دمپخت', 'لوبیا پلو', 'عدس پلو'] },
-        { id: 'stew', words: ['خورشت', 'خورش', 'قیمه', 'قرمه', 'فسنجان', 'فسنجون', 'کرفس'] },
-        { id: 'fastfood', words: ['پیتزا', 'برگر', 'ساندویچ', 'لازانیا', 'پاستا', 'ماکارونی', 'سوخاری', 'اسنک'] },
-        { id: 'fingerfood', words: ['فینگرفود', 'سمبوسه', 'پیراشکی', 'رولت', 'تارت', 'کراکت', 'توپک'] },
-        { id: 'soup', words: ['سوپ', 'آش', 'حلیم', 'عدسی', 'اشکنه'] },
-        { id: 'salad', words: ['سالاد', 'بورانی', 'پیش غذا', 'میرزاقاسمی', 'کشک بادمجان'] },
-        { id: 'dessert', words: ['کیک', 'دسر', 'شیرینی', 'حلوا', 'ژله', 'تیرامیسو', 'پودینگ', 'کوکی'] },
-        { id: 'drink', words: ['نوشیدنی', 'شربت', 'اسموتی', 'شیک', 'قهوه', 'دمنوش'] },
-        { id: 'sauce', words: ['سس', 'چاشنی', 'ترشی', 'مربا', 'دیپ'] },
-        { id: 'quick', words: ['املت', 'نیمرو', 'سریع', 'فوری'] },
-        { id: 'bread', words: ['کوکو', 'کتلت', 'شامی', 'خوراک', 'دلمه'] }
+        { id: 'rice', words: ['پلو', 'چلو', 'ته چین', 'ته‌چین', 'برنج', 'دمپخت', 'لوبیا پلو', 'عدس پلو', 'کلم پلو', 'سبزی پلو'] },
+        { id: 'stew', words: ['خورشت', 'خورش', 'قیمه', 'قرمه', 'فسنجان', 'فسنجون', 'کرفس', 'بادمجان', 'بامیه', 'آلو اسفناج'] },
+        { id: 'fastfood', words: ['پیتزا', 'برگر', 'ساندویچ', 'لازانیا', 'پاستا', 'ماکارونی', 'سوخاری', 'اسنک', 'هات داگ'] },
+        { id: 'fingerfood', words: ['فینگرفود', 'سمبوسه', 'پیراشکی', 'رولت', 'تارت', 'کراکت', 'توپک', 'اسپرینگ رول'] },
+        { id: 'soup', words: ['سوپ', 'آش', 'حلیم', 'عدسی', 'اشکنه', 'کله جوش'] },
+        { id: 'salad', words: ['سالاد', 'بورانی', 'پیش غذا', 'میرزاقاسمی', 'کشک بادمجان', 'حمص', 'متبل'] },
+        { id: 'dessert', words: ['کیک', 'دسر', 'شیرینی', 'حلوا', 'ژله', 'تیرامیسو', 'پودینگ', 'کوکی', 'چیزکیک', 'فرنی', 'شله زرد'] },
+        { id: 'drink', words: ['نوشیدنی', 'شربت', 'اسموتی', 'شیک', 'قهوه', 'دمنوش', 'لیموناد', 'موهیتو'] },
+        { id: 'sauce', words: ['سس', 'چاشنی', 'ترشی', 'مربا', 'دیپ', 'مایونز'] },
+        { id: 'quick', words: ['املت', 'نیمرو', 'سریع', 'فوری', 'نودل'] },
+        { id: 'bread', words: ['کوکو', 'کتلت', 'شامی', 'خوراک', 'دلمه', 'آبگوشت', 'تاس کباب', 'واویشکا'] }
       ];
 
       for (const c of catKeywords) {
@@ -1068,47 +1309,84 @@
       }
 
       lines.forEach((line, idx) => {
-        const clean = line.replace(/^[\-\*\•\◦\▪\▫\👈\⬅\🔸\🔹\✅\📌]+\s*/, '').trim();
+        const clean = line.replace(/^[\-\*\•\◦\▪\▫\👈\⬅\🔸\🔹\✅\📌\✨\🌸\🎀]+\s*/, '').trim();
+        if (!clean) return;
 
-        if (idx === 0 && clean.length < 45 && !clean.includes(':')) {
-          title = clean.replace(/^(طرز تهیه|دستور پخت|آموزش)\s*/i, '').trim();
+        // استخراج عنوان غذا از خط اول اگر کوتاه باشد و ماده اولیه یا مرحله پخت نباشد
+        if (idx === 0 && !title && clean.length < 45 && !isCookingStepSentence(clean) && !isIngredientItem(clean)) {
+          title = clean.replace(/^(طرز تهیه|دستور پخت|آموزش|رسپی)\s*/i, '').replace(/[:\-]+$/, '').trim();
           return;
         }
 
-        if (/^(مواد لازم|مواد اولیه|ترکیبات)/i.test(clean)) { mode = 'ing'; return; }
-        if (/^(طرز تهیه|مراحل پخت|روش پخت|دستور پخت|مراحل)/i.test(clean)) { mode = 'step'; return; }
-        if (/^(نکات|نکته|فوت و فن|فوت‌وفن|توصیه)/i.test(clean)) { mode = 'note'; return; }
+        // تشخیص سرفصل‌ها
+        if (/^(مواد لازم|مواد اولیه|ترکیبات)\s*[:\-]?$/i.test(clean)) { mode = 'ing'; return; }
+        if (/^(طرز تهیه|مراحل پخت|روش تهیه|روش پخت|دستور پخت|مراحل)\s*[:\-]?$/i.test(clean)) { mode = 'step'; return; }
+        if (/^(نکات|نکته|فوت و فن|فوت‌وفن|توصیه)\s*[:\-]?$/i.test(clean)) { mode = 'note'; return; }
 
-        const servMatch = clean.match(/(?:تعداد نفرات|نفرات|مناسب برای)\s*[:\-]?\s*([^\n،,]+)/);
-        if (servMatch && !servings) { servings = servMatch[1].trim(); return; }
+        // استخراج نفرات و زمان‌ها
+        const servMatch = clean.match(/(?:تعداد نفرات|نفرات|مناسب برای)\s*[:\-]?\s*([۰-۹0-9]+\s*(?:الی|تا|\-)?\s*[۰-۹0-9]*\s*نفر|[۰-۹0-9]+|یک نفر|دو نفر|سه نفر|چهار نفر|پنج نفر|شش نفر)/);
+        if (servMatch && !servings && clean.length < 35) {
+          servings = servMatch[1].includes('نفر') ? servMatch[1].trim() : `${servMatch[1].trim()} نفر`;
+          return;
+        }
 
         const prepMatch = clean.match(/(?:زمان آماده سازی|زمان آماده‌سازی|مدت آماده سازی|آماده‌سازی)\s*[:\-]?\s*([^\n،,]+)/);
-        if (prepMatch && !prepTime) { prepTime = prepMatch[1].trim(); return; }
+        if (prepMatch && clean.length < 40 && !prepTime) { prepTime = prepMatch[1].trim(); return; }
 
-        const cookMatch = clean.match(/(?:زمان پخت|مدت پخت|پخت)\s*[:\-]?\s*([^\n،,]+)/);
-        if (cookMatch && clean.length < 35 && !cookTime) { cookTime = cookMatch[1].trim(); return; }
+        const cookMatch = clean.match(/(?:زمان پخت|مدت پخت)\s*[:\-]?\s*([^\n،,]+)/);
+        if (cookMatch && clean.length < 40 && !cookTime) { cookTime = cookMatch[1].trim(); return; }
 
+        // جلوگیری از ورود اشتباهی مراحل پخت به داخل مواد اولیه حتی اگر کاربر سرفصل «طرز تهیه» ننوشته باشد!
         if (mode === 'ing') {
-          ingredients.push(clean);
-        } else if (mode === 'step') {
-          steps.push(clean.replace(/^[۰-۹0-9]+[\.\-\)\s]+/, '').trim());
-        } else if (mode === 'note') {
-          notes.push(clean);
-        } else {
-          // تشخیص خودکار بر اساس طول و واحد اندازه‌گیری
-          const hasMeasure = /(گرم|کیلو|پیمانه|لیوان|قاشق|عدد|حبه|بسته|مقدار|به میزان لازم|نصف|یک|دو|سه|چهار|۱|۲|۳|۴|1|2|3|4)/.test(clean);
-          if ((clean.length < 45 && hasMeasure) || (clean.includes(':') && clean.length < 50)) {
+          if (isCookingStepSentence(clean)) {
+            mode = 'step';
+            steps.push(clean.replace(/^[۰-۹0-9]+[\.\-\)\s]+/, '').trim());
+          } else {
             ingredients.push(clean);
-          } else if (/^(نکته|فوت)/.test(clean)) {
-            notes.push(clean);
+          }
+          return;
+        }
+
+        if (mode === 'step') {
+          if (/^(نکته|فوت\s*و\s*فن|توجه)\s*[:\-]/i.test(clean)) {
+            notes.push(clean.replace(/^(نکته|فوت\s*و\s*فن|توجه)\s*[:\-]\s*/i, ''));
           } else {
             steps.push(clean.replace(/^[۰-۹0-9]+[\.\-\)\s]+/, '').trim());
           }
+          return;
+        }
+
+        if (mode === 'note') {
+          notes.push(clean);
+          return;
+        }
+
+        // حالت تشخیص هوشمند خط‌به‌خط (وقتی متن هیچ سرفصلی ندارد)
+        if (/^(نکته|فوت\s*و\s*فن|توجه)\s*[:\-]/i.test(clean)) {
+          notes.push(clean.replace(/^(نکته|فوت\s*و\s*فن|توجه)\s*[:\-]\s*/i, ''));
+        } else if (isIngredientItem(clean)) {
+          ingredients.push(clean);
+        } else if (isCookingStepSentence(clean)) {
+          steps.push(clean.replace(/^[۰-۹0-9]+[\.\-\)\s]+/, '').trim());
+        } else if (clean.length < 35 && steps.length === 0) {
+          ingredients.push(clean);
+        } else {
+          steps.push(clean.replace(/^[۰-۹0-9]+[\.\-\)\s]+/, '').trim());
         }
       });
 
       if (!title && lines.length > 0) {
-        title = lines[0].slice(0, 35);
+        title = lines[0].replace(/^(طرز تهیه|دستور پخت|آموزش)\s*/i, '').slice(0, 35);
+      }
+
+      const detectedServings = servings || '۴ نفر';
+      if (targetServingsVal && targetServingsVal !== 'auto') {
+        const targetCount = parseInt(targetServingsVal, 10);
+        const baseCount = extractServingNumber(detectedServings, 4);
+        ingredients = scaleIngredientsList(ingredients, baseCount, targetCount);
+        servings = `${toPersianDigits(targetCount)} نفر`;
+      } else {
+        servings = detectedServings;
       }
 
       if (steps.length >= 6 || ingredients.length >= 10) difficulty = 4;
@@ -1135,27 +1413,39 @@
         return;
       }
 
+      const targetServingsVal = document.getElementById('ai-target-servings')?.value || 'auto';
       const btn = document.getElementById('ai-parse-btn');
       const status = document.getElementById('ai-parse-status');
       btn.disabled = true;
       status.classList.remove('hidden');
-      status.textContent = '✨ هوش مصنوعی در حال مرتب‌سازی مواد اولیه، مراحل و نکات...';
+      status.textContent = targetServingsVal !== 'auto'
+        ? `✨ در حال تفکیک دقیق مواد از مراحل و تنظیم مقادیر برای ${toPersianDigits(targetServingsVal)} نفر...`
+        : '✨ در حال تفکیک دقیق مواد اولیه، مراحل پخت و نکات...';
 
       const userKey = safeStorage.get(STORAGE_KEYS.API_KEY, '');
       const apiKey = userKey || "";
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
-      const systemInstruction = `تو دستیار هوشمند «دفتر آشپزی پریان» هستی. کاربر یک متن به‌هم‌ریخته از دستور آشپزی به تو می‌دهد.
-بدون اینکه هیچ ماده اولیه یا مرحله‌ای را حذف کنی یا مقدار آن را تغییر دهی، متن را به بخش‌های استاندارد زیر به زبان فارسی روان و مرتب تفکیک کن:
+      const servingInstruction = targetServingsVal !== 'auto'
+        ? `بسیار مهم: کاربر می‌خواهد این غذا را دقیقاً برای «${toPersianDigits(targetServingsVal)} نفر» درست کند. ابتدا تشخیص بده دستور اصلی برای چند نفر است (اگر ذکر نشده بود، ۴ نفر فرض کن) و سپس مقدار تمام مواد اولیه (گرم، پیمانه، قاشق، عدد و...) را به نسبت دقیق برای ${toPersianDigits(targetServingsVal)} نفر محاسبه و تبدیل کن و در فیلد servings بنویس «${toPersianDigits(targetServingsVal)} نفر».`
+        : `اگر تعداد نفرات در متن بود در فیلد servings بنویس وگرنه بر اساس حجم مواد تخمین بزن (مثلاً ۴ نفر).`;
+
+      const systemInstruction = `تو سرآشپز و دستیار هوشمند «دفتر آشپزی پریان» هستی. کاربر یک متن به‌هم‌ریخته از دستور پخت به تو می‌دهد.
+قوانین حیاتی تفکیک:
+۱. هرگز جملات طرز تهیه و مراحل پخت را داخل لیست مواد اولیه (ingredients) قرار نده و هرگز لیست مواد اولیه را داخل مراحل پخت (steps) ننویس!
+۲. در لیست ingredients فقط و فقط نام ماده اولیه و مقدار دقیق آن باشد (مثلاً: «برنج ایرانی: ۳ پیمانه» یا «پیاز متوسط: ۲ عدد»).
+۳. در لیست steps فقط مراحل عملی پخت به ترتیب زمانی و به صورت جملات کامل و شماره‌گذاری‌نشده بیاید.
+۴. ${servingInstruction}
+۵. خروجی را به صورت JSON استاندارد برگردان:
 - title: نام دقیق غذا
 - category: یکی از شناسه‌های (rice, stew, bread, fastfood, quick, fingerfood, salad, soup, dessert, drink, sauce)
-- servings: تعداد نفرات (اگر در متن بود، وگرنه رشته خالی)
-- prepTime: زمان آماده‌سازی (اگر در متن بود، وگرنه رشته خالی)
-- cookTime: مدت پخت (اگر در متن بود، وگرنه رشته خالی)
-- difficulty: درجه سختی بین 1 تا 5 بر اساس پیچیدگی غذا
-- ingredients: آرایه‌ای از رشته‌ها، هر ماده اولیه با مقدار دقیق در یک آیتم مجزا
-- steps: آرایه‌ای از رشته‌ها، مراحل پخت به ترتیب و بدون شماره در ابتدای متن
-- notes: نکات و فوت‌وفن‌های داخل متن (اگر نکته‌ای در متن بود)`;
+- servings: تعداد نفرات به فارسی (مثلاً ۴ نفر)
+- prepTime: زمان آماده‌سازی
+- cookTime: مدت پخت
+- difficulty: درجه سختی بین 1 تا 5
+- ingredients: آرایه‌ای مجزا شامل فقط مواد اولیه با مقدار دقیق
+- steps: آرایه‌ای مجزا شامل فقط مراحل پخت گام‌به‌گام
+- notes: نکات و فوت‌وفن‌های آشپزی`;
 
       const payload = {
         contents: [{ parts: [{ text: rawText }] }],
@@ -1186,14 +1476,18 @@
         if (!textJson) throw new Error('Empty AI response');
         const parsed = JSON.parse(textJson);
         applyParsedRecipeToForm(parsed);
-        status.textContent = '🎀 با هوش مصنوعی مرتب شد! بررسی کنید و دکمه ذخیره را بزنید.';
-        showToast('دستور پخت با هوش مصنوعی مرتب شد ✨');
+        status.textContent = targetServingsVal !== 'auto'
+          ? `🎀 مواد اولیه و مراحل تفکیک و مقادیر برای ${toPersianDigits(targetServingsVal)} نفر تنظیم شد!`
+          : '🎀 مواد اولیه و مراحل پخت با دقت تفکیک و در کادرها چیده شد!';
+        showToast('تفکیک هوشمند و تنظیم نفرات انجام شد ✨');
       } catch (err) {
-        // در صورت نبود کلید API روی گیت‌هاب، مبدل هوشمند داخلی بلافاصله متن را تفکیک می‌کند
-        const fallbackParsed = smartLocalParseRecipe(rawText);
+        // موتور هوشمند محلی با تشخیص افعال آشپزی و محاسبه دقیق مقادیر برای تعداد نفرات انتخابی
+        const fallbackParsed = smartLocalParseRecipe(rawText, targetServingsVal);
         applyParsedRecipeToForm(fallbackParsed);
-        status.textContent = '🎀 متن به‌صورت خودکار تفکیک و در کادرها چیده شد!';
-        showToast('متن دستور پخت تفکیک و مرتب شد ✨');
+        status.textContent = targetServingsVal !== 'auto'
+          ? `🎀 مواد و مراحل تفکیک شد و مقادیر برای ${toPersianDigits(targetServingsVal)} نفر محاسبه گردید!`
+          : '🎀 مواد اولیه و مراحل پخت به صورت مجزا در کادرها قرار گرفت!';
+        showToast('تفکیک مواد و مراحل با موفقیت انجام شد ✨');
       } finally {
         btn.disabled = false;
       }
