@@ -9,10 +9,10 @@
   <meta name="apple-mobile-web-app-title" content="دفتر آشپزی پریان" />
   <title>دفتر آشپزی پریان | My Little Pink Cookbook</title>
 
-  <!-- فونت استاندارد و خوانای وزیرمتن (فونت اولیه برنامه) از سرور سریع گوگل -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <!-- فونت وزیرمتن از دو سرور (اصلی و CDN بدون تحریم/فیلتر) با بارگذاری غیرمسدودکننده -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" media="print" onload="this.media='all'">
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -80,6 +80,14 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* استایل‌های پایه پشتیبان (Fallback) در صورت کندی یا عدم لود Tailwind روی اینترنت موبایل */
+    .hidden { display: none !important; }
+    #app { max-width: 448px; margin: 0 auto; padding: 12px; box-sizing: border-box; }
+    .bg-cream-card { background-color: #FFFDFB; border-radius: 28px; padding: 18px; }
+    .text-pink-deep { color: #B84A62; }
+    .text-pink-dusty { color: #D88C9A; }
+    .bg-pink-soft { background-color: #FDEEF4; }
+
     @media print {
       body { background: #FFF9FB !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       .no-print { display: none !important; }
@@ -115,8 +123,8 @@
         <button id="pwa-install-btn" onclick="installPWA()" class="hidden text-[11px] font-bold bg-pink-deep text-white px-2.5 py-1.5 rounded-xl shadow-xs">
           📲 نصب
         </button>
-        <button onclick="openHostModal()" title="نصب و لینک دائمی" class="text-[11px] font-bold bg-pink-soft text-pink-deep px-2.5 py-1.5 rounded-xl border border-pink-pastel">
-          🚀 نصب اپ
+        <button onclick="openHostModal()" title="بکاپ و تنظیمات" class="text-[11px] font-bold bg-pink-soft text-pink-deep px-2.5 py-1.5 rounded-xl border border-pink-pastel">
+          💾 بکاپ
         </button>
         <button onclick="preparePrintBooklet()" title="چاپ / PDF" class="text-xs font-bold text-rose-gold bg-pink-soft/70 px-2.5 py-1.5 rounded-xl">
           PDF
@@ -197,12 +205,7 @@
             📲 نصب مستقیم دفتر آشپزی پریان روی گوشی
           </button>
 
-          <button onclick="openHostModal()" class="w-full py-2.5 px-4 rounded-xl bg-pink-soft text-pink-deep font-bold text-xs border border-pink-pastel flex items-center justify-center gap-1.5">
-            <span>🚀</span>
-            <span>دریافت فایل و راه‌اندازی دائمی روی گوشی (PWA)</span>
-          </button>
-
-          <p class="text-[11px] text-pink-dusty">
+          <p class="text-[11px] text-pink-dusty pt-1">
             ساخته شده با عشق برای ثبت خوشمزه‌ترین دستورهای خانگی ♡
           </p>
         </div>
@@ -351,6 +354,53 @@
         <button onclick="closeRecipeModal()" class="w-8 h-8 rounded-full bg-pink-soft text-pink-deep flex items-center justify-center font-bold">✕</button>
       </div>
 
+      <!-- بخش جدید: دستیار هوشمند مرتب‌سازی متن به‌هم‌ریخته با AI -->
+      <div id="ai-magic-box" class="mb-3.5 bg-gradient-to-l from-pink-soft via-[#FFF5F8] to-pink-soft p-3 rounded-2xl rose-border shadow-2xs">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-xs font-bold text-pink-deep flex items-center gap-1">
+            <span>🪄</span>
+            <span>تبدیل متن به‌هم‌ریخته به دستور مرتب با AI</span>
+          </span>
+          <button type="button" onclick="toggleAiKeyBox()" class="text-[10px] text-pink-dusty underline">⚙️ کلید AI</button>
+        </div>
+
+        <!-- کادر اختیاری کلید API برای اجرای روی گیت‌هاب -->
+        <div id="ai-key-box" class="hidden mb-2 bg-white/90 p-2 rounded-xl border border-pink-pastel">
+          <label class="block text-[10px] text-pink-deep font-bold mb-1">کلید رایگان Gemini API (برای کار روی گیت‌هاب - یک‌بار ذخیره می‌شود):</label>
+          <div class="flex gap-1.5">
+            <input type="password" id="gemini-api-key-input" placeholder="AIzaSy..." class="flex-1 bg-pink-soft/40 border border-pink-pastel rounded-lg px-2 py-1 text-[11px] text-left dir-ltr focus:outline-none focus:border-pink-deep" />
+            <button type="button" onclick="saveUserApiKey()" class="bg-pink-deep text-white text-[10px] font-bold px-2.5 py-1 rounded-lg">ذخیره</button>
+          </div>
+        </div>
+
+        <textarea
+          id="ai-raw-recipe-text"
+          rows="3"
+          placeholder="متن کپی‌شده از اینستاگرام، تلگرام یا یادداشت به‌هم‌ریخته غذا رو اینجا پیست کن تا هوش مصنوعی خودش نام غذا، دسته‌بندی، نفرات، مواد اولیه، مراحل و فوت‌وفن‌ها رو جدا کنه و بنویسه..."
+          class="w-full bg-white rounded-xl p-2.5 text-xs border border-pink-pastel focus:outline-none focus:border-pink-deep resize-none leading-relaxed"
+        ></textarea>
+
+        <div class="flex items-center justify-between gap-2 mt-2">
+          <button
+            type="button"
+            onclick="pasteFromClipboardToAi()"
+            class="bg-white text-pink-deep border border-pink-pastel rounded-xl py-2 px-3 text-[11px] font-bold flex items-center gap-1 active:scale-95 transition"
+          >
+            <span>📋</span>
+            <span>چسباندن متن</span>
+          </button>
+          <button
+            type="button"
+            id="ai-parse-btn"
+            onclick="parseMessyRecipeWithAI()"
+            class="flex-1 bg-gradient-to-l from-pink-deep via-[#C95C74] to-rose-gold text-white rounded-xl py-2 px-3 text-xs font-bold shadow-ribbon flex items-center justify-center gap-1.5 active:scale-95 transition"
+          >
+            <span>✨ مرتب‌سازی و پر کردن خودکار فرم</span>
+          </button>
+        </div>
+        <p id="ai-parse-status" class="hidden text-[11px] text-pink-deep font-bold mt-1.5 text-center"></p>
+      </div>
+
       <form id="recipe-form" onsubmit="saveRecipe(event)" class="space-y-3">
         <input type="hidden" id="edit-recipe-id" />
 
@@ -437,30 +487,52 @@
 
   <!-- مودال راهنمای سرور رایگان و دانلود تک‌فایل PWA -->
   <div id="host-modal" class="hidden fixed inset-0 bg-[#4A2530]/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-    <div class="bg-cream-card w-full max-w-md rounded-[2rem] p-5 rose-border shadow-2xl fade-in space-y-3.5 text-right">
+    <div class="bg-cream-card w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[2rem] p-5 rose-border shadow-2xl fade-in space-y-3.5 text-right">
       <div class="flex items-center justify-between border-b border-pink-pastel pb-2.5">
-        <h3 class="font-bold text-base text-pink-deep">🚀 نصب دائمی روی گوشی (سرور رایگان)</h3>
+        <h3 class="font-bold text-base text-pink-deep">🐙 نصب دائمی روی GitHub Pages (بدون تبلیغ)</h3>
         <button onclick="closeHostModal()" class="w-7 h-7 rounded-full bg-pink-soft text-pink-deep font-bold text-xs flex items-center justify-center">✕</button>
       </div>
 
       <p class="text-xs leading-relaxed text-[#5C3A42]">
-        چون محیط گفتگو به سرورهای خارجی دسترسی مستقیم برای آپلود ندارد، تمام تنظیمات <b>PWA (نصب به‌عنوان اپلیکیشن موبایل)</b> داخل همین یک فایل قرار داده شده است. کافیست یکی از دو روش زیر را انجام دهید:
+        سرویس <b>GitHub Pages</b> کاملاً رایگان است، <b>هیچ تبلیغاتی روی برنامه نمی‌اندازد</b> و بدون فیلترشکن باز می‌شود. برای ساخت لینک دائمی در ۲ دقیقه:
       </p>
 
-      <div class="bg-pink-soft/70 rounded-2xl p-3.5 rose-border space-y-2.5">
-        <p class="text-xs font-bold text-pink-deep">گام ۱: دانلود فایل آماده برنامه</p>
-        <button onclick="downloadStandaloneApp()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-l from-pink-deep to-pink-dusty text-white font-bold text-xs shadow-ribbon flex items-center justify-center gap-2">
-          <span>📥 دانلود فایل index.html دفتر آشپزی پریان</span>
-        </button>
+      <div class="bg-pink-soft/70 rounded-2xl p-3.5 rose-border space-y-2">
+        <p class="text-xs font-bold text-pink-deep">گام ۱: دریافت کد یا فایل برنامه</p>
+        <div class="grid grid-cols-1 gap-2">
+          <button onclick="copySourceCode()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-l from-pink-deep to-pink-dusty text-white font-bold text-xs shadow-ribbon flex items-center justify-center gap-2">
+            <span>📋 کپی مستقیم کل کد (مطمئن‌ترین روش بدون خطای 404)</span>
+          </button>
+          <button onclick="downloadStandaloneApp()" class="w-full py-2 px-4 rounded-xl bg-white border border-pink-pastel text-pink-deep font-bold text-xs flex items-center justify-center gap-2">
+            <span>📥 یا دانلود فایل index.html</span>
+          </button>
+        </div>
       </div>
 
       <div class="bg-white rounded-2xl p-3.5 rose-border space-y-2 text-xs text-[#5C3A42]">
-        <p class="font-bold text-pink-deep">گام ۲: قرار دادن روی لینک دائمی رایگان (۳۰ ثانیه)</p>
+        <p class="font-bold text-pink-deep">گام ۲: رفع خطای 404 و ساخت صفحه در GitHub</p>
         <ol class="list-decimal pr-4 space-y-1.5 leading-relaxed">
-          <li>وارد سایت رایگان <b>app.netlify.com/drop</b> یا <b>tiiny.host</b> شوید.</li>
-          <li>فایل <code>index.html</code> دانلودشده را داخل صفحه بکشید و رها کنید.</li>
-          <li>لینک اختصاصی که به شما می‌دهد را در گوشی باز کنید و دکمه <b>«📲 نصب روی گوشی»</b> یا <b>Add to Home Screen</b> را بزنید تا آیکون <b>«دفتر آشپزی پریان»</b> کنار بقیه برنامه‌های گوشی اضافه شود!</li>
+          <li>ابتدا دکمه <b>«📋 کپی مستقیم کل کد»</b> در بالا را بزنید.</li>
+          <li>وارد مخزن (Repository) خود در گیت‌هاب شوید و روی <b>Add file</b> و سپس <b>Create new file</b> کلیک کنید (یا اگر قبلاً مستقیم وارد شدید روی <b>creating a new file</b> کلیک کنید).</li>
+          <li>در کادر نام فایل (Name your file...) دقیقاً با حروف کوچک بنویسید: <code class="bg-pink-soft px-1.5 py-0.5 rounded font-bold text-pink-deep">index.html</code></li>
+          <li>در کادر بزرگ پایین صفحه، کد کپی‌شده را <b>Paste (چسباندن)</b> کنید و دکمه سبز <b>Commit changes</b> را بزنید.</li>
+          <li>وارد تب <b>Settings ⚙️</b> و بخش <b>Pages</b> شوید، زیر <b>Branch</b> گزینه <b>main</b> را انتخاب و <b>Save</b> کنید.</li>
         </ol>
+      </div>
+
+      <!-- بخش پشتیبان‌گیری اطلاعات برای انتقال راحت بین نسخه‌ها -->
+      <div class="bg-pink-soft/50 rounded-2xl p-3.5 rose-dashed space-y-2">
+        <p class="text-xs font-bold text-pink-deep">💾 پشتیبان‌گیری و انتقال دستورهای ثبت‌شده</p>
+        <p class="text-[11px] text-[#5C3A42]">می‌توانید از تمام غذاها و نکات ثبت‌شده فایل پشتیبان بگیرید تا هر زمان روی گوشی جدید هم وارد کنید:</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="exportBackupJSON()" class="bg-white border border-pink-pastel text-pink-deep font-bold text-xs py-2 px-2 rounded-xl">
+            📤 دانلود فایل پشتیبان
+          </button>
+          <label class="cursor-pointer bg-white border border-pink-pastel text-pink-deep font-bold text-xs py-2 px-2 rounded-xl text-center">
+            📥 بازیابی پشتیبان
+            <input type="file" accept=".json" onchange="importBackupJSON(event)" class="hidden" />
+          </label>
+        </div>
       </div>
 
       <button onclick="closeHostModal()" class="w-full py-2.5 rounded-xl bg-pink-soft text-pink-deep font-bold text-xs">متوجه شدم ♡</button>
@@ -495,12 +567,25 @@
     const STORAGE_KEYS = {
       RECIPES: 'parian_cookbook_recipes_v1',
       TIPS: 'parian_cookbook_tips_v1',
-      CHECKED: 'parian_cookbook_checked_v1'
+      CHECKED: 'parian_cookbook_checked_v1',
+      API_KEY: 'parian_cookbook_gemini_key_v1'
     };
 
-    let recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
-    let cookingTips = JSON.parse(localStorage.getItem(STORAGE_KEYS.TIPS) || '[]');
-    let checkedIngredients = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHECKED) || '{}');
+    // حافظه ایمن برای جلوگیری از خطا در مرورگرهای داخلی و آیفون
+    const safeStorage = {
+      get(key, fallback) {
+        try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+        catch (e) { return fallback; }
+      },
+      set(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); return true; }
+        catch (e) { return false; }
+      }
+    };
+
+    let recipes = safeStorage.get(STORAGE_KEYS.RECIPES, []);
+    let cookingTips = safeStorage.get(STORAGE_KEYS.TIPS, []);
+    let checkedIngredients = safeStorage.get(STORAGE_KEYS.CHECKED, {});
 
     let currentView = 'cover';
     let currentCategoryId = 'rice';
@@ -509,7 +594,7 @@
     let uploadedImageBase64 = '';
     let deferredPrompt = null;
 
-    // راه‌اندازی فوری PWA (Manifest پویا و Service Worker سبک)
+    // راه‌اندازی فوری PWA با آپدیت خودکار (skipWaiting + cache: 'no-store')
     function initPWA() {
       try {
         const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="44" fill="#FDEEF4"/><circle cx="96" cy="96" r="70" fill="#F7CAD0"/><text x="96" y="118" font-size="82" text-anchor="middle">👩‍🍳</text></svg>`;
@@ -529,9 +614,17 @@
         document.head.appendChild(link);
 
         if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-          const swCode = `self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));`;
+          const swCode = `
+            self.addEventListener('install', () => self.skipWaiting());
+            self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+            self.addEventListener('fetch', e => {
+              e.respondWith(fetch(e.request, { cache: 'no-store' }).catch(() => caches.match(e.request)));
+            });
+          `;
           const swBlob = new Blob([swCode], { type: 'application/javascript' });
-          navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+          navigator.serviceWorker.register(URL.createObjectURL(swBlob)).then(reg => {
+            reg.update().catch(() => {});
+          }).catch(() => {});
         }
       } catch (e) {}
     }
@@ -834,7 +927,7 @@
       const list = checkedIngredients[recipeId];
       const pos = list.indexOf(idx);
       pos > -1 ? list.splice(pos, 1) : list.push(idx);
-      localStorage.setItem(STORAGE_KEYS.CHECKED, JSON.stringify(checkedIngredients));
+      safeStorage.set(STORAGE_KEYS.CHECKED, checkedIngredients);
       renderRecipeDetail(recipeId);
     }
 
@@ -850,6 +943,13 @@
       uploadedImageBase64 = '';
       document.getElementById('image-preview-wrapper').classList.add('hidden');
       document.getElementById('ai-img-status').classList.add('hidden');
+      document.getElementById('ai-parse-status')?.classList.add('hidden');
+      const rawInput = document.getElementById('ai-raw-recipe-text');
+      if (rawInput) rawInput.value = '';
+
+      const savedKey = safeStorage.get(STORAGE_KEYS.API_KEY, '');
+      const keyInput = document.getElementById('gemini-api-key-input');
+      if (keyInput) keyInput.value = savedKey;
 
       if (recipeId) {
         const r = recipes.find(item => item.id === recipeId);
@@ -883,6 +983,242 @@
 
     function closeRecipeModal() {
       document.getElementById('recipe-modal').classList.add('hidden');
+    }
+
+    // ====================================================
+    // بخش هوش مصنوعی: تبدیل متن به‌هم‌ریخته به ساختار استاندارد
+    // ====================================================
+    function toggleAiKeyBox() {
+      document.getElementById('ai-key-box')?.classList.toggle('hidden');
+    }
+
+    function saveUserApiKey() {
+      const val = document.getElementById('gemini-api-key-input')?.value.trim() || '';
+      safeStorage.set(STORAGE_KEYS.API_KEY, val);
+      document.getElementById('ai-key-box')?.classList.add('hidden');
+      showToast('کلید هوش مصنوعی ذخیره شد 🔑');
+    }
+
+    async function pasteFromClipboardToAi() {
+      const textarea = document.getElementById('ai-raw-recipe-text');
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          const clipText = await navigator.clipboard.readText();
+          if (clipText) {
+            textarea.value = clipText;
+            showToast('متن از حافظه گوشی پیست شد 📋');
+            return;
+          }
+        }
+      } catch (e) {}
+      textarea.focus();
+      showToast('نگه دارید و گزینه Paste را بزنید 📋');
+    }
+
+    async function callGeminiWithRetry(apiUrl, payload, retries = 3) {
+      let delay = 1000;
+      for (let i = 0; i < retries; i++) {
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (response.ok) return await response.json();
+        } catch (err) {}
+        if (i < retries - 1) {
+          await new Promise(r => setTimeout(r, delay));
+          delay *= 2;
+        }
+      }
+      throw new Error('AI request failed');
+    }
+
+    // تفکیک‌کننده هوشمند محلی (Fallback) اگر روی گیت‌هاب کلید API وارد نشده باشد یا اینترنت قطع باشد
+    function smartLocalParseRecipe(rawText) {
+      const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      let title = '';
+      let category = document.getElementById('field-category').value || 'rice';
+      let servings = '';
+      let prepTime = '';
+      let cookTime = '';
+      let difficulty = 0;
+      const ingredients = [];
+      const steps = [];
+      const notes = [];
+
+      let mode = 'auto'; // 'ing', 'step', 'note'
+
+      const catKeywords = [
+        { id: 'rice', words: ['پلو', 'چلو', 'ته چین', 'ته‌چین', 'برنج', 'دمپخت', 'لوبیا پلو', 'عدس پلو'] },
+        { id: 'stew', words: ['خورشت', 'خورش', 'قیمه', 'قرمه', 'فسنجان', 'فسنجون', 'کرفس'] },
+        { id: 'fastfood', words: ['پیتزا', 'برگر', 'ساندویچ', 'لازانیا', 'پاستا', 'ماکارونی', 'سوخاری', 'اسنک'] },
+        { id: 'fingerfood', words: ['فینگرفود', 'سمبوسه', 'پیراشکی', 'رولت', 'تارت', 'کراکت', 'توپک'] },
+        { id: 'soup', words: ['سوپ', 'آش', 'حلیم', 'عدسی', 'اشکنه'] },
+        { id: 'salad', words: ['سالاد', 'بورانی', 'پیش غذا', 'میرزاقاسمی', 'کشک بادمجان'] },
+        { id: 'dessert', words: ['کیک', 'دسر', 'شیرینی', 'حلوا', 'ژله', 'تیرامیسو', 'پودینگ', 'کوکی'] },
+        { id: 'drink', words: ['نوشیدنی', 'شربت', 'اسموتی', 'شیک', 'قهوه', 'دمنوش'] },
+        { id: 'sauce', words: ['سس', 'چاشنی', 'ترشی', 'مربا', 'دیپ'] },
+        { id: 'quick', words: ['املت', 'نیمرو', 'سریع', 'فوری'] },
+        { id: 'bread', words: ['کوکو', 'کتلت', 'شامی', 'خوراک', 'دلمه'] }
+      ];
+
+      for (const c of catKeywords) {
+        if (c.words.some(w => rawText.includes(w))) { category = c.id; break; }
+      }
+
+      lines.forEach((line, idx) => {
+        const clean = line.replace(/^[\-\*\•\◦\▪\▫\👈\⬅\🔸\🔹\✅\📌]+\s*/, '').trim();
+
+        if (idx === 0 && clean.length < 45 && !clean.includes(':')) {
+          title = clean.replace(/^(طرز تهیه|دستور پخت|آموزش)\s*/i, '').trim();
+          return;
+        }
+
+        if (/^(مواد لازم|مواد اولیه|ترکیبات)/i.test(clean)) { mode = 'ing'; return; }
+        if (/^(طرز تهیه|مراحل پخت|روش پخت|دستور پخت|مراحل)/i.test(clean)) { mode = 'step'; return; }
+        if (/^(نکات|نکته|فوت و فن|فوت‌وفن|توصیه)/i.test(clean)) { mode = 'note'; return; }
+
+        const servMatch = clean.match(/(?:تعداد نفرات|نفرات|مناسب برای)\s*[:\-]?\s*([^\n،,]+)/);
+        if (servMatch && !servings) { servings = servMatch[1].trim(); return; }
+
+        const prepMatch = clean.match(/(?:زمان آماده سازی|زمان آماده‌سازی|مدت آماده سازی|آماده‌سازی)\s*[:\-]?\s*([^\n،,]+)/);
+        if (prepMatch && !prepTime) { prepTime = prepMatch[1].trim(); return; }
+
+        const cookMatch = clean.match(/(?:زمان پخت|مدت پخت|پخت)\s*[:\-]?\s*([^\n،,]+)/);
+        if (cookMatch && clean.length < 35 && !cookTime) { cookTime = cookMatch[1].trim(); return; }
+
+        if (mode === 'ing') {
+          ingredients.push(clean);
+        } else if (mode === 'step') {
+          steps.push(clean.replace(/^[۰-۹0-9]+[\.\-\)\s]+/, '').trim());
+        } else if (mode === 'note') {
+          notes.push(clean);
+        } else {
+          // تشخیص خودکار بر اساس طول و واحد اندازه‌گیری
+          const hasMeasure = /(گرم|کیلو|پیمانه|لیوان|قاشق|عدد|حبه|بسته|مقدار|به میزان لازم|نصف|یک|دو|سه|چهار|۱|۲|۳|۴|1|2|3|4)/.test(clean);
+          if ((clean.length < 45 && hasMeasure) || (clean.includes(':') && clean.length < 50)) {
+            ingredients.push(clean);
+          } else if (/^(نکته|فوت)/.test(clean)) {
+            notes.push(clean);
+          } else {
+            steps.push(clean.replace(/^[۰-۹0-9]+[\.\-\)\s]+/, '').trim());
+          }
+        }
+      });
+
+      if (!title && lines.length > 0) {
+        title = lines[0].slice(0, 35);
+      }
+
+      if (steps.length >= 6 || ingredients.length >= 10) difficulty = 4;
+      else if (steps.length >= 3) difficulty = 3;
+      else difficulty = 2;
+
+      return {
+        title,
+        category,
+        servings,
+        prepTime,
+        cookTime,
+        difficulty,
+        ingredients,
+        steps,
+        notes: notes.join('\n')
+      };
+    }
+
+    async function parseMessyRecipeWithAI() {
+      const rawText = document.getElementById('ai-raw-recipe-text').value.trim();
+      if (!rawText) {
+        showToast('ابتدا متن دستور پخت را در کادر بالا وارد کنید 🪄');
+        return;
+      }
+
+      const btn = document.getElementById('ai-parse-btn');
+      const status = document.getElementById('ai-parse-status');
+      btn.disabled = true;
+      status.classList.remove('hidden');
+      status.textContent = '✨ هوش مصنوعی در حال مرتب‌سازی مواد اولیه، مراحل و نکات...';
+
+      const userKey = safeStorage.get(STORAGE_KEYS.API_KEY, '');
+      const apiKey = userKey || "";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+      const systemInstruction = `تو دستیار هوشمند «دفتر آشپزی پریان» هستی. کاربر یک متن به‌هم‌ریخته از دستور آشپزی به تو می‌دهد.
+بدون اینکه هیچ ماده اولیه یا مرحله‌ای را حذف کنی یا مقدار آن را تغییر دهی، متن را به بخش‌های استاندارد زیر به زبان فارسی روان و مرتب تفکیک کن:
+- title: نام دقیق غذا
+- category: یکی از شناسه‌های (rice, stew, bread, fastfood, quick, fingerfood, salad, soup, dessert, drink, sauce)
+- servings: تعداد نفرات (اگر در متن بود، وگرنه رشته خالی)
+- prepTime: زمان آماده‌سازی (اگر در متن بود، وگرنه رشته خالی)
+- cookTime: مدت پخت (اگر در متن بود، وگرنه رشته خالی)
+- difficulty: درجه سختی بین 1 تا 5 بر اساس پیچیدگی غذا
+- ingredients: آرایه‌ای از رشته‌ها، هر ماده اولیه با مقدار دقیق در یک آیتم مجزا
+- steps: آرایه‌ای از رشته‌ها، مراحل پخت به ترتیب و بدون شماره در ابتدای متن
+- notes: نکات و فوت‌وفن‌های داخل متن (اگر نکته‌ای در متن بود)`;
+
+      const payload = {
+        contents: [{ parts: [{ text: rawText }] }],
+        systemInstruction: { parts: [{ text: systemInstruction }] },
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              title: { type: "STRING" },
+              category: { type: "STRING" },
+              servings: { type: "STRING" },
+              prepTime: { type: "STRING" },
+              cookTime: { type: "STRING" },
+              difficulty: { type: "INTEGER" },
+              ingredients: { type: "ARRAY", items: { type: "STRING" } },
+              steps: { type: "ARRAY", items: { type: "STRING" } },
+              notes: { type: "STRING" }
+            },
+            propertyOrdering: ["title", "category", "servings", "prepTime", "cookTime", "difficulty", "ingredients", "steps", "notes"]
+          }
+        }
+      };
+
+      try {
+        const result = await callGeminiWithRetry(apiUrl, payload, 2);
+        const textJson = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!textJson) throw new Error('Empty AI response');
+        const parsed = JSON.parse(textJson);
+        applyParsedRecipeToForm(parsed);
+        status.textContent = '🎀 با هوش مصنوعی مرتب شد! بررسی کنید و دکمه ذخیره را بزنید.';
+        showToast('دستور پخت با هوش مصنوعی مرتب شد ✨');
+      } catch (err) {
+        // در صورت نبود کلید API روی گیت‌هاب، مبدل هوشمند داخلی بلافاصله متن را تفکیک می‌کند
+        const fallbackParsed = smartLocalParseRecipe(rawText);
+        applyParsedRecipeToForm(fallbackParsed);
+        status.textContent = '🎀 متن به‌صورت خودکار تفکیک و در کادرها چیده شد!';
+        showToast('متن دستور پخت تفکیک و مرتب شد ✨');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function applyParsedRecipeToForm(data) {
+      if (data.title) document.getElementById('field-title').value = data.title;
+      if (data.category && CATEGORIES.some(c => c.id === data.category && !c.isTipsPage)) {
+        document.getElementById('field-category').value = data.category;
+      }
+      if (data.servings) document.getElementById('field-servings').value = data.servings;
+      if (data.prepTime) document.getElementById('field-prep').value = data.prepTime;
+      if (data.cookTime) document.getElementById('field-cook').value = data.cookTime;
+      if (typeof data.difficulty === 'number') {
+        setDifficulty(Math.min(5, Math.max(0, data.difficulty)));
+      }
+      if (Array.isArray(data.ingredients) && data.ingredients.length > 0) {
+        document.getElementById('field-ingredients').value = data.ingredients.join('\n');
+      }
+      if (Array.isArray(data.steps) && data.steps.length > 0) {
+        document.getElementById('field-steps').value = data.steps.join('\n');
+      }
+      if (data.notes) {
+        document.getElementById('field-notes').value = data.notes;
+      }
     }
 
     function setDifficulty(val) {
@@ -931,16 +1267,15 @@
       status.textContent = '✨ در حال نقاشی فانتزی غذا...';
 
       const promptText = `Cute food illustration in Pinterest kawaii pastel pink aesthetic style of "${foodName}", soft pastel pink and warm cream background, clean storybook watercolor illustration, no text.`;
-      const apiKey = "";
+      const userKey = safeStorage.get(STORAGE_KEYS.API_KEY, '');
+      const apiKey = userKey || "";
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-image:generateContent?key=${apiKey}`;
 
       try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }], generationConfig: { responseModalities: ['TEXT', 'IMAGE'] } })
-        });
-        const result = await response.json();
+        const result = await callGeminiWithRetry(apiUrl, {
+          contents: [{ parts: [{ text: promptText }] }],
+          generationConfig: { responseModalities: ['TEXT', 'IMAGE'] }
+        }, 2);
         const part = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
         if (part?.inlineData?.data) {
           uploadedImageBase64 = `data:${part.inlineData.mimeType || 'image/png'};base64,${part.inlineData.data}`;
@@ -951,7 +1286,7 @@
           status.textContent = 'امکان ساخت تصویر نبود؛ عکس آپلود کنید.';
         }
       } catch (err) {
-        status.textContent = 'خطا در ساخت تصویر.';
+        status.textContent = 'برای ساخت تصویر روی گیت‌هاب، کلید AI را وارد کنید یا عکس از گالری بگذارید.';
       } finally {
         btn.disabled = false;
       }
@@ -996,8 +1331,9 @@
     }
 
     function saveRecipesToStorage() {
-      try { localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(recipes)); }
-      catch (e) { showToast('حافظه پر شده است؛ حجم عکس را کمتر کنید.'); }
+      if (!safeStorage.set(STORAGE_KEYS.RECIPES, recipes)) {
+        showToast('حافظه پر شده است؛ حجم عکس را کمتر کنید.');
+      }
     }
 
     function renderTipsList() {
@@ -1029,7 +1365,7 @@
       const text = input.value.trim();
       if (!text) { showToast('متن نکته را بنویسید'); return; }
       cookingTips.unshift({ id: 'tip_' + Date.now(), text });
-      localStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(cookingTips));
+      safeStorage.set(STORAGE_KEYS.TIPS, cookingTips);
       input.value = '';
       renderTipsList();
       showToast('نکته ثبت شد ♡');
@@ -1037,7 +1373,7 @@
 
     function deleteCookingTip(id) {
       cookingTips = cookingTips.filter(t => t.id !== id);
-      localStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(cookingTips));
+      safeStorage.set(STORAGE_KEYS.TIPS, cookingTips);
       renderTipsList();
     }
 
@@ -1086,8 +1422,42 @@
       document.getElementById('host-modal')?.classList.add('hidden');
     }
 
+    function getCleanHtmlSource() {
+      const clone = document.documentElement.cloneNode(true);
+      clone.querySelector('#host-modal')?.classList.add('hidden');
+      clone.querySelector('#recipe-modal')?.classList.add('hidden');
+      clone.querySelector('#toast-box')?.classList.add('hidden');
+
+      // بازگرداندن صفحه به جلد اصلی قبل از خروجی گرفتن تا فایل ذخیره شده سالم باز شود
+      clone.querySelector('#view-cover')?.classList.remove('hidden');
+      ['toc', 'favorites', 'category', 'recipe', 'tips'].forEach(v => {
+        clone.querySelector(`#view-${v}`)?.classList.add('hidden');
+      });
+      clone.querySelector('#top-bar')?.classList.add('hidden');
+      clone.querySelector('#bottom-nav')?.classList.add('hidden');
+
+      return '<!DOCTYPE html>\n' + clone.outerHTML;
+    }
+
+    function copySourceCode() {
+      const htmlContent = getCleanHtmlSource();
+      const ta = document.createElement('textarea');
+      ta.value = htmlContent;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast('کل کد کپی شد! در گیت‌هاب داخل index.html پیست کنید 📋');
+      } catch (e) {
+        showToast('امکان کپی نبود؛ از دکمه دانلود استفاده کنید.');
+      }
+      document.body.removeChild(ta);
+    }
+
     function downloadStandaloneApp() {
-      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const htmlContent = getCleanHtmlSource();
       const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1097,7 +1467,44 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('فایل index.html دانلود شد 🎀');
+      showToast('فایل تمیز index.html دانلود شد 🎀');
+    }
+
+    function exportBackupJSON() {
+      const data = { recipes, cookingTips, checkedIngredients, exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'parian-cookbook-backup.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('فایل پشتیبان دانلود شد 💾');
+    }
+
+    function importBackupJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (Array.isArray(data.recipes)) recipes = data.recipes;
+          if (Array.isArray(data.cookingTips)) cookingTips = data.cookingTips;
+          if (data.checkedIngredients) checkedIngredients = data.checkedIngredients;
+          safeStorage.set(STORAGE_KEYS.RECIPES, recipes);
+          safeStorage.set(STORAGE_KEYS.TIPS, cookingTips);
+          safeStorage.set(STORAGE_KEYS.CHECKED, checkedIngredients);
+          renderCategoriesList();
+          closeHostModal();
+          showToast('اطلاعات با موفقیت بازیابی شد 🎀');
+        } catch (err) {
+          showToast('فایل پشتیبان معتبر نیست!');
+        }
+      };
+      reader.readAsDataURL ? reader.readAsText(file) : null;
     }
   </script>
 </body>
