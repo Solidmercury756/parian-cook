@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#F7CAD0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="دفتر آشپزی پریان" />
+  <title>دفتر آشپزی پریان | My Little Pink Cookbook</title>
+
+  <!-- فونت استاندارد و خوانای وزیرمتن (فونت اولیه برنامه) از سرور سریع گوگل -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'pink-cream': '#FFF9FB',
+            'pink-soft': '#FDEEF4',
+            'pink-pastel': '#F7CAD0',
+            'pink-dusty': '#D88C9A',
+            'pink-deep': '#B84A62',
+            'rose-gold': '#C98A7B',
+            'cream-card': '#FFFDFB'
+          },
+          fontFamily: {
+            sans: ['Vazirmatn', 'Tahoma', 'sans-serif'],
+            display: ['Vazirmatn', 'Tahoma', 'sans-serif']
+          },
+          boxShadow: {
+            'pink-soft': '0 8px 20px -4px rgba(216, 140, 154, 0.22)',
+            'ribbon': '0 3px 10px rgba(184, 74, 98, 0.2)'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html, body {
+      max-width: 100vw;
+      overflow-x: hidden;
+      background-color: #FFF9FB;
+      background-image:
+        linear-gradient(90deg, rgba(247, 202, 208, 0.2) 50%, transparent 50%),
+        linear-gradient(rgba(247, 202, 208, 0.2) 50%, transparent 50%);
+      background-size: 24px 24px;
+      font-family: 'Vazirmatn', Tahoma, sans-serif;
+      color: #5C3A42;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    input, textarea, select, button {
+      font-family: inherit;
+    }
+
+    .rose-border { border: 1.5px solid #E6B8AF; }
+    .rose-dashed { border: 1.5px dashed #D88C9A; }
+
+    .ribbon-banner {
+      position: relative;
+      background: linear-gradient(135deg, #F9D5DC 0%, #F4B8C4 100%);
+      border: 1.5px solid #D88C9A;
+      box-shadow: 0 3px 10px rgba(216, 140, 154, 0.25);
+    }
+
+    .fade-in {
+      animation: fadeIn 0.2s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media print {
+      body { background: #FFF9FB !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .print-page-break { page-break-after: always; break-after: page; }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-24">
+
+  <div id="app" class="w-full max-w-md mx-auto min-h-screen relative px-3 pt-3">
+
+    <!-- نوار ابزار بالای صفحه -->
+    <header id="top-bar" class="hidden no-print flex items-center justify-between bg-white/95 backdrop-blur-sm rounded-2xl px-3 py-2 mb-3 rose-border shadow-sm sticky top-2 z-30">
+      <div class="flex items-center gap-1">
+        <button onclick="navigate('cover')" class="flex items-center gap-1 text-pink-dusty active:text-pink-deep font-bold text-xs bg-pink-soft/70 px-2.5 py-1.5 rounded-xl">
+          <span>📖</span>
+          <span>جلد</span>
+        </button>
+        <button onclick="navigate('toc')" class="flex items-center gap-1 text-pink-deep font-bold text-xs bg-pink-soft px-2.5 py-1.5 rounded-xl">
+          <span>☰</span>
+          <span>فهرست</span>
+        </button>
+      </div>
+
+      <div onclick="navigate('cover')" class="cursor-pointer flex items-center gap-1">
+        <span class="text-pink-dusty text-xs">♡</span>
+        <span class="font-bold text-base text-pink-deep">دفتر آشپزی پریان</span>
+        <span class="text-pink-dusty text-xs">♡</span>
+      </div>
+
+      <div class="flex items-center gap-1">
+        <button id="pwa-install-btn" onclick="installPWA()" class="hidden text-[11px] font-bold bg-pink-deep text-white px-2.5 py-1.5 rounded-xl shadow-xs">
+          📲 نصب
+        </button>
+        <button onclick="openHostModal()" title="نصب و لینک دائمی" class="text-[11px] font-bold bg-pink-soft text-pink-deep px-2.5 py-1.5 rounded-xl border border-pink-pastel">
+          🚀 نصب اپ
+        </button>
+        <button onclick="preparePrintBooklet()" title="چاپ / PDF" class="text-xs font-bold text-rose-gold bg-pink-soft/70 px-2.5 py-1.5 rounded-xl">
+          PDF
+        </button>
+      </div>
+    </header>
+
+    <!-- صفحه ۱: جلد دفتر آشپزی پریان -->
+    <section id="view-cover" class="fade-in py-1">
+      <div class="bg-cream-card rounded-[2rem] p-5 rose-border shadow-pink-soft text-center">
+
+        <!-- پاپیون و کلاه سرآشپز سبک و بهینه -->
+        <div class="flex justify-center mb-1">
+          <svg class="w-24 h-12" viewBox="0 0 140 70" fill="none">
+            <path d="M68 35C52 14 18 10 14 33C10 54 46 52 68 37" fill="#F7CAD0" stroke="#C98A7B" stroke-width="2.2"/>
+            <path d="M72 35C88 14 122 10 126 33C130 54 94 52 72 37" fill="#F7CAD0" stroke="#C98A7B" stroke-width="2.2"/>
+            <path d="M63 40L46 62L57 59L68 42M77 40L94 62L83 59L72 42" fill="#F4B8C4" stroke="#C98A7B" stroke-width="2"/>
+            <rect x="61" y="26" width="18" height="18" rx="7" fill="#F4B8C4" stroke="#C98A7B" stroke-width="2.2"/>
+          </svg>
+        </div>
+
+        <div class="flex items-center justify-center gap-3 mb-1">
+          <span class="text-pink-dusty text-base">♡</span>
+          <span class="text-3xl">👩‍🍳</span>
+          <span class="text-pink-dusty text-base">♡</span>
+        </div>
+
+        <h1 class="font-bold text-3xl sm:text-4xl text-pink-deep leading-tight mt-1">
+          دفتر آشپزی پریان
+        </h1>
+
+        <div class="inline-block my-3 px-6 py-1 rounded-full ribbon-banner">
+          <p class="italic text-sm text-pink-deep font-semibold">
+            My Little Pink Cookbook ♡
+          </p>
+        </div>
+
+        <!-- تصویرسازی مرکزی سبک‌سازی‌شده برای رندر فوری -->
+        <div class="my-2 flex justify-center">
+          <svg class="w-64 h-44" viewBox="0 0 320 200" fill="none">
+            <ellipse cx="160" cy="115" rx="135" ry="70" fill="#FDEEF4"/>
+            <path d="M40 160L90 142H235L280 165L230 190H85L40 160Z" fill="#FAD2DA" stroke="#C98A7B" stroke-width="1.6"/>
+            <!-- قابلمه صورتی -->
+            <g transform="translate(95, 52)">
+              <path d="M10 38H3C0 38 0 48 3 48H12M120 38H127C130 38 130 48 127 48H118" stroke="#B84A62" stroke-width="3" stroke-linecap="round"/>
+              <path d="M12 28H118V82C118 94 108 103 95 103H35C22 103 12 94 12 82V28Z" fill="#F7CAD0" stroke="#B84A62" stroke-width="2"/>
+              <path d="M65 73C65 73 51 63 51 54C51 49 55 46 59 46C62 46 64 48 65 50C66 48 68 46 71 46C75 46 79 49 79 54C79 63 65 73 65 73Z" fill="#FDEEF4" stroke="#D88C9A" stroke-width="1.5"/>
+              <path d="M9 28C9 17 34 11 65 11C96 11 121 17 121 28H9Z" fill="#F4B8C4" stroke="#B84A62" stroke-width="2"/>
+              <ellipse cx="65" cy="8" rx="10" ry="5" fill="#C98A7B" stroke="#8C5346" stroke-width="1.8"/>
+            </g>
+            <!-- کیک توت‌فرنگی -->
+            <g transform="translate(205, 72)">
+              <ellipse cx="44" cy="90" rx="22" ry="6" fill="#FFFDFB" stroke="#C98A7B" stroke-width="1.8"/>
+              <rect x="39" y="72" width="10" height="18" fill="#FFFDFB" stroke="#C98A7B" stroke-width="1.8"/>
+              <ellipse cx="44" cy="72" rx="40" ry="8" fill="#FFFDFB" stroke="#C98A7B" stroke-width="1.8"/>
+              <path d="M16 42H72V68C72 71 60 73 44 73C28 73 16 71 16 68V42Z" fill="#F9DEC9" stroke="#B87D56" stroke-width="1.8"/>
+              <path d="M14 42C14 36 28 32 44 32C60 32 74 36 74 42C74 46 68 48 64 44C60 48 52 48 48 44C44 48 38 48 34 44C30 48 22 48 18 44C15 47 14 45 14 42Z" fill="#FFFFFF" stroke="#C98A7B" stroke-width="1.8"/>
+              <circle cx="36" cy="26" r="6" fill="#E65A72"/>
+              <circle cx="52" cy="25" r="6" fill="#E65A72"/>
+            </g>
+            <!-- ابزار چوبی -->
+            <g transform="translate(36, 68)">
+              <rect x="14" y="8" width="6" height="45" rx="3" transform="rotate(-10 14 8)" fill="#E5B285" stroke="#9E6B4B" stroke-width="1.6"/>
+              <rect x="30" y="4" width="6" height="48" rx="3" fill="#DDA16F" stroke="#9E6B4B" stroke-width="1.6"/>
+              <path d="M10 46H52L49 88C48.5 92 45 95 41 95H21C17 95 13.5 92 13 88L10 46Z" fill="#FFFDFB" stroke="#C98A7B" stroke-width="1.8"/>
+              <path d="M11 58H51" stroke="#F7CAD0" stroke-width="3.5"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="mt-2 space-y-2.5">
+          <button onclick="navigate('toc')" class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-l from-pink-deep via-[#C95C74] to-pink-dusty text-white font-bold text-base shadow-ribbon active:scale-[0.98] transition flex items-center justify-center gap-2">
+            <span>ورود به فهرست مطالب</span>
+            <span>←</span>
+          </button>
+
+          <button id="cover-install-btn" onclick="installPWA()" class="hidden w-full py-2.5 px-4 rounded-xl bg-pink-deep text-white font-bold text-xs shadow-xs">
+            📲 نصب مستقیم دفتر آشپزی پریان روی گوشی
+          </button>
+
+          <button onclick="openHostModal()" class="w-full py-2.5 px-4 rounded-xl bg-pink-soft text-pink-deep font-bold text-xs border border-pink-pastel flex items-center justify-center gap-1.5">
+            <span>🚀</span>
+            <span>دریافت فایل و راه‌اندازی دائمی روی گوشی (PWA)</span>
+          </button>
+
+          <p class="text-[11px] text-pink-dusty">
+            ساخته شده با عشق برای ثبت خوشمزه‌ترین دستورهای خانگی ♡
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- صفحه ۲: فهرست مطالب -->
+    <section id="view-toc" class="hidden fade-in">
+      <div class="bg-cream-card rounded-[2rem] p-4 rose-border shadow-pink-soft">
+        <div class="text-center mb-4">
+          <div class="inline-block px-7 py-1.5 rounded-2xl ribbon-banner">
+            <h2 class="font-bold text-xl text-pink-deep">♡ فهرست مطالب ♡</h2>
+          </div>
+        </div>
+
+        <!-- جستجو و علاقه‌مندی‌ها -->
+        <div class="flex gap-2 mb-4">
+          <div class="relative flex-1">
+            <input
+              type="text"
+              id="search-input"
+              oninput="handleSearch(this.value)"
+              placeholder="جستجوی غذا یا مواد اولیه..."
+              class="w-full bg-pink-soft/70 border border-pink-pastel rounded-xl py-2.5 pr-8 pl-3 text-xs text-[#5C3A42] placeholder-pink-dusty/75 focus:outline-none focus:border-pink-deep focus:bg-white"
+            />
+            <span class="text-pink-dusty text-xs absolute right-2.5 top-2.5">🔍</span>
+          </div>
+          <button onclick="navigate('favorites')" class="bg-pink-pastel/80 active:bg-pink-pastel text-pink-deep font-bold text-xs px-3 py-2.5 rounded-xl border border-pink-dusty/40 whitespace-nowrap flex items-center gap-1">
+            <span>♥</span>
+            <span>علاقه‌مندی‌ها</span>
+          </button>
+        </div>
+
+        <!-- نتایج جستجو -->
+        <div id="search-results-box" class="hidden mb-4 bg-pink-soft/60 rounded-2xl p-3 rose-dashed">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-pink-deep">نتایج جستجو:</span>
+            <button onclick="clearSearch()" class="text-xs text-pink-dusty underline">بستن</button>
+          </div>
+          <div id="search-results-list" class="space-y-2"></div>
+        </div>
+
+        <!-- لیست دسته‌بندی‌ها -->
+        <div id="categories-list" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <!-- صفحه علاقه‌مندی‌ها -->
+    <section id="view-favorites" class="hidden fade-in">
+      <div class="bg-cream-card rounded-[2rem] p-4 rose-border shadow-pink-soft">
+        <div class="flex items-center justify-between mb-3">
+          <button onclick="navigate('toc')" class="text-xs font-bold text-pink-deep bg-pink-soft px-3 py-1.5 rounded-xl">→ بازگشت</button>
+          <span id="fav-count-badge" class="text-xs bg-pink-pastel/60 text-pink-deep px-3 py-1 rounded-full font-bold">۰ محبوب</span>
+        </div>
+
+        <div class="text-center mb-4">
+          <div class="inline-flex items-center gap-2 px-6 py-1.5 rounded-2xl ribbon-banner">
+            <h2 class="font-bold text-xl text-pink-deep">♥ علاقه‌مندی‌های من ♥</h2>
+          </div>
+        </div>
+
+        <div id="favorites-recipes-grid" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- صفحه لیست غذاهای یک دسته‌بندی -->
+    <section id="view-category" class="hidden fade-in">
+      <div class="bg-cream-card rounded-[2rem] p-4 rose-border shadow-pink-soft">
+        <div class="flex items-center justify-between mb-3">
+          <button onclick="navigate('toc')" class="text-xs font-bold text-pink-deep bg-pink-soft px-3 py-1.5 rounded-xl">→ بازگشت</button>
+          <span id="cat-count-badge" class="text-xs bg-pink-pastel/60 text-pink-deep px-3 py-1 rounded-full font-bold">۰ دستور</span>
+        </div>
+
+        <div class="text-center mb-4">
+          <div class="inline-flex items-center gap-2 px-6 py-1.5 rounded-2xl ribbon-banner">
+            <span id="cat-icon-header" class="text-lg">🍚</span>
+            <h2 id="cat-title-header" class="font-bold text-xl text-pink-deep">دسته‌بندی</h2>
+          </div>
+        </div>
+
+        <div id="category-recipes-grid" class="space-y-2.5"></div>
+      </div>
+    </section>
+
+    <!-- صفحه نمایش کامل دستور پخت -->
+    <section id="view-recipe" class="hidden fade-in">
+      <div id="recipe-detail-container" class="bg-cream-card rounded-[2rem] p-4 rose-border shadow-pink-soft"></div>
+    </section>
+
+    <!-- صفحه نکات و فوت‌وفن‌های آشپزی -->
+    <section id="view-tips" class="hidden fade-in">
+      <div class="bg-cream-card rounded-[2rem] p-4 rose-border shadow-pink-soft">
+        <div class="flex items-center justify-between mb-3">
+          <button onclick="navigate('toc')" class="text-xs font-bold text-pink-deep bg-pink-soft px-3 py-1.5 rounded-xl">→ بازگشت</button>
+          <span class="text-pink-dusty text-xs">🎀 یادداشت‌ها</span>
+        </div>
+
+        <div class="text-center mb-4">
+          <div class="inline-flex items-center gap-1.5 px-5 py-1.5 rounded-2xl ribbon-banner">
+            <h2 class="font-bold text-lg text-pink-deep">♡ نکات و فوت‌وفن‌های آشپزی ♡</h2>
+          </div>
+        </div>
+
+        <div class="bg-pink-soft/70 rounded-2xl p-3 mb-4 rose-border">
+          <label class="block text-xs font-bold text-pink-deep mb-1">ثبت نکته یا فوت‌وفن جدید:</label>
+          <textarea id="new-tip-input" rows="2" placeholder="مثلاً: برای اینکه برنج حسابی قد بکشه..." class="w-full bg-white rounded-xl p-2.5 text-xs border border-pink-pastel focus:outline-none focus:border-pink-deep resize-none"></textarea>
+          <div class="flex justify-end mt-2">
+            <button onclick="addCookingTip()" class="bg-gradient-to-l from-pink-deep to-pink-dusty text-white text-xs font-bold px-4 py-2 rounded-xl">
+              + ذخیره نکته
+            </button>
+          </div>
+        </div>
+
+        <div id="tips-list-container" class="space-y-3"></div>
+      </div>
+    </section>
+
+    <!-- بخش مخفی مخصوص خروجی PDF -->
+    <div id="print-booklet-area" class="hidden print-only"></div>
+  </div>
+
+  <!-- منوی شناور پایین صفحه (تراز و وسط‌چین برای موبایل) -->
+  <nav id="bottom-nav" class="hidden no-print fixed bottom-2.5 left-3 right-3 max-w-md mx-auto bg-white/95 backdrop-blur-md rounded-2xl px-2 py-2 rose-border shadow-pink-soft z-30 flex items-center justify-around">
+    <button onclick="navigate('favorites')" id="nav-btn-favorites" class="flex-1 flex flex-col items-center justify-center text-pink-dusty active:text-pink-deep py-1 rounded-xl">
+      <span class="text-lg leading-none mb-1">💖</span>
+      <span class="text-[11px] font-bold leading-none">علاقه‌مندی‌ها</span>
+    </button>
+
+    <div class="flex-1 flex items-center justify-center">
+      <button onclick="openRecipeModal()" title="افزودن دستور پخت" class="flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-tr from-pink-deep to-pink-dusty text-white shadow-ribbon active:scale-95 transition border border-pink-pastel">
+        <span class="text-2xl font-bold leading-none">+</span>
+      </button>
+    </div>
+
+    <button onclick="navigate('tips')" id="nav-btn-tips" class="flex-1 flex flex-col items-center justify-center text-pink-dusty active:text-pink-deep py-1 rounded-xl">
+      <span class="text-lg leading-none mb-1">💡</span>
+      <span class="text-[11px] font-bold leading-none">فوت‌وفن‌ها</span>
+    </button>
+  </nav>
+
+  <!-- مودال افزودن / ویرایش دستور پخت -->
+  <div id="recipe-modal" class="hidden fixed inset-0 bg-[#4A2530]/50 backdrop-blur-xs z-50 flex items-end justify-center">
+    <div class="bg-cream-card w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-[2rem] p-4 rose-border shadow-2xl fade-in">
+      <div class="flex items-center justify-between pb-2.5 mb-3 border-b border-pink-pastel">
+        <h3 id="modal-title" class="font-bold text-lg text-pink-deep">♡ ثبت دستور پخت جدید ♡</h3>
+        <button onclick="closeRecipeModal()" class="w-8 h-8 rounded-full bg-pink-soft text-pink-deep flex items-center justify-center font-bold">✕</button>
+      </div>
+
+      <form id="recipe-form" onsubmit="saveRecipe(event)" class="space-y-3">
+        <input type="hidden" id="edit-recipe-id" />
+
+        <div>
+          <label class="block text-xs font-bold text-pink-deep mb-1">نام غذا *</label>
+          <input type="text" id="field-title" required placeholder="مثلاً: ته‌چین مرغ مجلسی" class="w-full bg-pink-soft/60 border border-pink-pastel rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pink-deep focus:bg-white" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-pink-deep mb-1">دسته‌بندی *</label>
+          <select id="field-category" class="w-full bg-pink-soft/60 border border-pink-pastel rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-pink-deep focus:bg-white"></select>
+        </div>
+
+        <!-- تصویر غذا -->
+        <div class="bg-pink-soft/50 p-3 rounded-2xl rose-dashed">
+          <label class="block text-xs font-bold text-pink-deep mb-1.5">تصویر غذا (گالری یا ساخت با AI)</label>
+          <div id="image-preview-wrapper" class="hidden mb-2.5 relative rounded-xl overflow-hidden border border-pink-pastel bg-white">
+            <img id="field-image-preview" src="" alt="پیش‌نمایش" class="w-full h-40 object-cover" />
+            <button type="button" onclick="clearRecipeImage()" class="absolute top-2 left-2 bg-white/90 text-pink-deep text-xs px-2 py-1 rounded-lg font-bold">حذف</button>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="cursor-pointer bg-white text-pink-deep border border-pink-pastel rounded-xl py-2 px-2 text-xs font-bold text-center flex items-center justify-center gap-1">
+              <span>📷 عکس از گالری</span>
+              <input type="file" accept="image/*" onchange="handleImageUpload(event)" class="hidden" />
+            </label>
+            <button type="button" id="ai-img-btn" onclick="generateCuteFoodImage()" class="bg-gradient-to-l from-pink-deep to-rose-gold text-white rounded-xl py-2 px-2 text-xs font-bold flex items-center justify-center gap-1">
+              <span>✨ ساخت تصویر AI</span>
+            </button>
+          </div>
+          <p id="ai-img-status" class="hidden text-[11px] text-pink-deep mt-1.5 text-center"></p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-[11px] font-bold text-pink-deep mb-1">👥 نفرات</label>
+            <input type="text" id="field-servings" placeholder="۴ نفر" class="w-full bg-pink-soft/60 border border-pink-pastel rounded-xl px-2 py-2 text-xs focus:outline-none focus:border-pink-deep" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-pink-deep mb-1">⏱️ آماده‌سازی</label>
+            <input type="text" id="field-prep" placeholder="۳۰ دقیقه" class="w-full bg-pink-soft/60 border border-pink-pastel rounded-xl px-2 py-2 text-xs focus:outline-none focus:border-pink-deep" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-pink-deep mb-1">🍲 مدت پخت</label>
+            <input type="text" id="field-cook" placeholder="۱ ساعت" class="w-full bg-pink-soft/60 border border-pink-pastel rounded-xl px-2 py-2 text-xs focus:outline-none focus:border-pink-deep" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-pink-deep mb-1">درجه سختی (اختیاری)</label>
+          <div class="flex items-center gap-2 bg-pink-soft/50 px-3 py-1.5 rounded-xl border border-pink-pastel">
+            <div id="star-selector" class="flex gap-1 text-xl cursor-pointer select-none">
+              <span data-val="1" onclick="setDifficulty(1)" class="text-gray-300">★</span>
+              <span data-val="2" onclick="setDifficulty(2)" class="text-gray-300">★</span>
+              <span data-val="3" onclick="setDifficulty(3)" class="text-gray-300">★</span>
+              <span data-val="4" onclick="setDifficulty(4)" class="text-gray-300">★</span>
+              <span data-val="5" onclick="setDifficulty(5)" class="text-gray-300">★</span>
+            </div>
+            <button type="button" onclick="setDifficulty(0)" class="mr-auto text-[11px] text-pink-dusty underline">بدون درجه</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-pink-deep mb-1">🧺 مواد اولیه (هر مورد در یک خط)</label>
+          <textarea id="field-ingredients" rows="3" placeholder="برنج ایرانی: ۳ پیمانه&#10;سینه مرغ: ۱ عدد" class="w-full bg-pink-soft/60 border border-pink-pastel rounded-xl p-2.5 text-sm focus:outline-none focus:border-pink-deep focus:bg-white"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-pink-deep mb-1">👩‍🍳 مراحل پخت (هر مرحله در یک خط)</label>
+          <textarea id="field-steps" rows="4" placeholder="برنج را خیس کرده و آبکش می‌کنیم.&#10;مرغ را با پیاز و ادویه می‌پزیم." class="w-full bg-pink-soft/60 border border-pink-pastel rounded-xl p-2.5 text-sm focus:outline-none focus:border-pink-deep focus:bg-white"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-pink-deep mb-1">💡 نکات مهم و فوت‌وفن‌ها</label>
+          <textarea id="field-notes" rows="2" placeholder="نکات کلیدی خوشمزه‌تر شدن غذا..." class="w-full bg-pink-soft/60 border border-pink-pastel rounded-xl p-2.5 text-sm focus:outline-none focus:border-pink-deep focus:bg-white"></textarea>
+        </div>
+
+        <div class="flex gap-2 pt-1">
+          <button type="button" onclick="closeRecipeModal()" class="flex-1 py-2.5 rounded-xl bg-pink-soft text-pink-deep font-bold text-xs">انصراف</button>
+          <button type="submit" class="flex-[2] py-2.5 rounded-xl bg-gradient-to-l from-pink-deep to-pink-dusty text-white font-bold text-sm shadow-ribbon">ذخیره در دفتر پریان ♡</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- مودال راهنمای سرور رایگان و دانلود تک‌فایل PWA -->
+  <div id="host-modal" class="hidden fixed inset-0 bg-[#4A2530]/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-cream-card w-full max-w-md rounded-[2rem] p-5 rose-border shadow-2xl fade-in space-y-3.5 text-right">
+      <div class="flex items-center justify-between border-b border-pink-pastel pb-2.5">
+        <h3 class="font-bold text-base text-pink-deep">🚀 نصب دائمی روی گوشی (سرور رایگان)</h3>
+        <button onclick="closeHostModal()" class="w-7 h-7 rounded-full bg-pink-soft text-pink-deep font-bold text-xs flex items-center justify-center">✕</button>
+      </div>
+
+      <p class="text-xs leading-relaxed text-[#5C3A42]">
+        چون محیط گفتگو به سرورهای خارجی دسترسی مستقیم برای آپلود ندارد، تمام تنظیمات <b>PWA (نصب به‌عنوان اپلیکیشن موبایل)</b> داخل همین یک فایل قرار داده شده است. کافیست یکی از دو روش زیر را انجام دهید:
+      </p>
+
+      <div class="bg-pink-soft/70 rounded-2xl p-3.5 rose-border space-y-2.5">
+        <p class="text-xs font-bold text-pink-deep">گام ۱: دانلود فایل آماده برنامه</p>
+        <button onclick="downloadStandaloneApp()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-l from-pink-deep to-pink-dusty text-white font-bold text-xs shadow-ribbon flex items-center justify-center gap-2">
+          <span>📥 دانلود فایل index.html دفتر آشپزی پریان</span>
+        </button>
+      </div>
+
+      <div class="bg-white rounded-2xl p-3.5 rose-border space-y-2 text-xs text-[#5C3A42]">
+        <p class="font-bold text-pink-deep">گام ۲: قرار دادن روی لینک دائمی رایگان (۳۰ ثانیه)</p>
+        <ol class="list-decimal pr-4 space-y-1.5 leading-relaxed">
+          <li>وارد سایت رایگان <b>app.netlify.com/drop</b> یا <b>tiiny.host</b> شوید.</li>
+          <li>فایل <code>index.html</code> دانلودشده را داخل صفحه بکشید و رها کنید.</li>
+          <li>لینک اختصاصی که به شما می‌دهد را در گوشی باز کنید و دکمه <b>«📲 نصب روی گوشی»</b> یا <b>Add to Home Screen</b> را بزنید تا آیکون <b>«دفتر آشپزی پریان»</b> کنار بقیه برنامه‌های گوشی اضافه شود!</li>
+        </ol>
+      </div>
+
+      <button onclick="closeHostModal()" class="w-full py-2.5 rounded-xl bg-pink-soft text-pink-deep font-bold text-xs">متوجه شدم ♡</button>
+    </div>
+  </div>
+
+  <!-- پیام‌رسان Toast -->
+  <div id="toast-box" class="hidden fixed top-4 left-1/2 -translate-x-1/2 bg-pink-deep text-white px-4 py-2 rounded-full shadow-lg text-xs font-bold z-50 flex items-center gap-1.5 whitespace-nowrap">
+    <span>🎀</span>
+    <span id="toast-text">انجام شد!</span>
+  </div>
+
+  <script>
+    // ==========================================
+    // دسته‌بندی‌های به‌روزشده دفتر آشپزی پریان
+    // ==========================================
+    const CATEGORIES = [
+      { id: 'rice', title: 'غذاهای برنجی و پلوها', icon: '🍚' },
+      { id: 'stew', title: 'خورشت‌ها', icon: '🍲' },
+      { id: 'bread', title: 'غذاهای نونی', icon: '🥪' },
+      { id: 'fastfood', title: 'فست فودی', icon: '🍔' },
+      { id: 'quick', title: 'غذاهای سریع', icon: '⚡' },
+      { id: 'fingerfood', title: 'فینگرفودها', icon: '🍢' },
+      { id: 'salad', title: 'پیش‌غذا و سالاد', icon: '🥗' },
+      { id: 'soup', title: 'سوپ و آش', icon: '🍜' },
+      { id: 'dessert', title: 'دسر و شیرینی', icon: '🧁' },
+      { id: 'drink', title: 'نوشیدنی‌ها', icon: '🍹' },
+      { id: 'sauce', title: 'سس‌ها و چاشنی‌ها', icon: '🥣' },
+      { id: 'tips', title: 'فوت‌وفن‌ها و نکات آشپزی', icon: '👩‍🍳', isTipsPage: true }
+    ];
+
+    const STORAGE_KEYS = {
+      RECIPES: 'parian_cookbook_recipes_v1',
+      TIPS: 'parian_cookbook_tips_v1',
+      CHECKED: 'parian_cookbook_checked_v1'
+    };
+
+    let recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+    let cookingTips = JSON.parse(localStorage.getItem(STORAGE_KEYS.TIPS) || '[]');
+    let checkedIngredients = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHECKED) || '{}');
+
+    let currentView = 'cover';
+    let currentCategoryId = 'rice';
+    let currentRecipeId = null;
+    let selectedDifficulty = 0;
+    let uploadedImageBase64 = '';
+    let deferredPrompt = null;
+
+    // راه‌اندازی فوری PWA (Manifest پویا و Service Worker سبک)
+    function initPWA() {
+      try {
+        const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="44" fill="#FDEEF4"/><circle cx="96" cy="96" r="70" fill="#F7CAD0"/><text x="96" y="118" font-size="82" text-anchor="middle">👩‍🍳</text></svg>`;
+        const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(iconSvg);
+        const manifest = {
+          name: 'دفتر آشپزی پریان',
+          short_name: 'آشپزی پریان',
+          start_url: '.',
+          display: 'standalone',
+          background_color: '#FFF9FB',
+          theme_color: '#F7CAD0',
+          icons: [{ src: iconUrl, sizes: '192x192', type: 'image/svg+xml' }]
+        };
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
+        document.head.appendChild(link);
+
+        if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+          const swCode = `self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));`;
+          const swBlob = new Blob([swCode], { type: 'application/javascript' });
+          navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+        }
+      } catch (e) {}
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('pwa-install-btn')?.classList.remove('hidden');
+      document.getElementById('cover-install-btn')?.classList.remove('hidden');
+    });
+
+    async function installPWA() {
+      if (!deferredPrompt) {
+        showToast('از منوی مرورگر گزینه Add to Home Screen را بزنید 📲');
+        return;
+      }
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('pwa-install-btn')?.classList.add('hidden');
+      document.getElementById('cover-install-btn')?.classList.add('hidden');
+    }
+
+    // اجرای فوری بدون معطلی
+    (function boot() {
+      initPWA();
+      populateCategorySelect();
+      renderCategoriesList();
+    })();
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast-box');
+      document.getElementById('toast-text').textContent = msg;
+      toast.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => toast.classList.add('hidden'), 2400);
+    }
+
+    function navigate(view, param = null) {
+      currentView = view;
+      ['cover', 'toc', 'favorites', 'category', 'recipe', 'tips'].forEach(v => {
+        document.getElementById(`view-${v}`)?.classList.add('hidden');
+      });
+
+      const isCover = view === 'cover';
+      document.getElementById('top-bar').classList.toggle('hidden', isCover);
+      document.getElementById('bottom-nav').classList.toggle('hidden', isCover);
+
+      const favBtn = document.getElementById('nav-btn-favorites');
+      const tipsBtn = document.getElementById('nav-btn-tips');
+      if (favBtn && tipsBtn) {
+        favBtn.className = `flex-1 flex flex-col items-center justify-center py-1 rounded-xl ${view === 'favorites' ? 'text-pink-deep bg-pink-soft/80' : 'text-pink-dusty'}`;
+        tipsBtn.className = `flex-1 flex flex-col items-center justify-center py-1 rounded-xl ${view === 'tips' ? 'text-pink-deep bg-pink-soft/80' : 'text-pink-dusty'}`;
+      }
+
+      if (view === 'toc') renderCategoriesList();
+      else if (view === 'favorites') renderFavoritesView();
+      else if (view === 'category') { currentCategoryId = param || 'rice'; renderCategoryView(currentCategoryId); }
+      else if (view === 'recipe') { currentRecipeId = param; renderRecipeDetail(currentRecipeId); }
+      else if (view === 'tips') renderTipsList();
+
+      document.getElementById(`view-${view}`).classList.remove('hidden');
+      window.scrollTo(0, 0);
+    }
+
+    function renderCategoriesList() {
+      const container = document.getElementById('categories-list');
+      if (!container) return;
+
+      container.innerHTML = CATEGORIES.map((cat, idx) => {
+        const count = cat.isTipsPage ? cookingTips.length : recipes.filter(r => r.category === cat.id).length;
+        const action = cat.isTipsPage ? `navigate('tips')` : `navigate('category', '${cat.id}')`;
+
+        return `
+          <div onclick="${action}" class="cursor-pointer bg-white active:bg-pink-soft rounded-2xl px-3.5 py-2.5 rose-border shadow-2xs flex items-center justify-between transition">
+            <div class="flex items-center gap-2.5">
+              <span class="w-6 h-6 rounded-full bg-pink-soft text-pink-deep font-bold text-xs flex items-center justify-center border border-pink-pastel">
+                ${toPersianDigits(idx + 1)}
+              </span>
+              <span class="font-bold text-sm text-[#5C3A42]">${cat.title}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] bg-pink-soft text-pink-dusty px-2 py-0.5 rounded-full font-bold">
+                ${toPersianDigits(count)} ${cat.isTipsPage ? 'نکته' : 'دستور'}
+              </span>
+              <span class="text-lg">${cat.icon}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleSearch(query) {
+      const box = document.getElementById('search-results-box');
+      const list = document.getElementById('search-results-list');
+      const q = query.trim().toLowerCase();
+      if (!q) { box.classList.add('hidden'); return; }
+
+      const matched = recipes.filter(r =>
+        r.title.toLowerCase().includes(q) || (r.ingredients || []).some(ing => ing.toLowerCase().includes(q))
+      );
+
+      box.classList.remove('hidden');
+      list.innerHTML = matched.length === 0
+        ? `<p class="text-xs text-pink-dusty text-center py-2">موردی پیدا نشد.</p>`
+        : matched.map(r => {
+            const cat = CATEGORIES.find(c => c.id === r.category) || CATEGORIES[0];
+            return `
+              <div onclick="navigate('recipe', '${r.id}')" class="cursor-pointer bg-white rounded-xl p-2 border border-pink-pastel flex items-center justify-between">
+                <span class="text-xs font-bold text-pink-deep">${cat.icon} ${escapeHtml(r.title)}</span>
+                <span class="text-[10px] text-pink-dusty">${cat.title}</span>
+              </div>
+            `;
+          }).join('');
+    }
+
+    function clearSearch() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('search-results-box').classList.add('hidden');
+    }
+
+    function toggleFavorite(recipeId, event) {
+      if (event) event.stopPropagation();
+      const idx = recipes.findIndex(r => r.id === recipeId);
+      if (idx === -1) return;
+
+      recipes[idx].isFavorite = !recipes[idx].isFavorite;
+      saveRecipesToStorage();
+      showToast(recipes[idx].isFavorite ? 'به علاقه‌مندی‌ها اضافه شد 💖' : 'از علاقه‌مندی‌ها حذف شد');
+
+      if (currentView === 'category') renderCategoryView(currentCategoryId);
+      else if (currentView === 'favorites') renderFavoritesView();
+      else if (currentView === 'recipe') renderRecipeDetail(recipeId);
+    }
+
+    function renderFavoritesView() {
+      const favRecipes = recipes.filter(r => r.isFavorite);
+      document.getElementById('fav-count-badge').textContent = `${toPersianDigits(favRecipes.length)} محبوب`;
+      const grid = document.getElementById('favorites-recipes-grid');
+
+      if (favRecipes.length === 0) {
+        grid.innerHTML = `
+          <div class="text-center py-8 px-4 bg-pink-soft/40 rounded-2xl rose-dashed">
+            <div class="text-3xl mb-2">💖</div>
+            <p class="font-bold text-sm text-pink-deep mb-1">هنوز غذایی در علاقه‌مندی‌ها نیست</p>
+            <p class="text-xs text-pink-dusty">قلب کنار هر غذا را لمس کنید تا اینجا ذخیره شود.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = favRecipes.map(r => renderRecipeCardItem(r, true)).join('');
+    }
+
+    function renderCategoryView(catId) {
+      const cat = CATEGORIES.find(c => c.id === catId) || CATEGORIES[0];
+      const catRecipes = recipes.filter(r => r.category === cat.id);
+
+      document.getElementById('cat-icon-header').textContent = cat.icon;
+      document.getElementById('cat-title-header').textContent = cat.title;
+      document.getElementById('cat-count-badge').textContent = `${toPersianDigits(catRecipes.length)} دستور`;
+
+      const grid = document.getElementById('category-recipes-grid');
+      if (catRecipes.length === 0) {
+        grid.innerHTML = `
+          <div class="text-center py-8 px-4 bg-pink-soft/40 rounded-2xl rose-dashed">
+            <div class="text-3xl mb-2">${cat.icon}</div>
+            <p class="font-bold text-sm text-pink-deep mb-1">هنوز دستوری در «${cat.title}» ثبت نشده</p>
+            <p class="text-xs text-pink-dusty">دکمه «+» پایین صفحه را بزنید تا اولین دستور اضافه شود.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = catRecipes.map(r => renderRecipeCardItem(r, false)).join('');
+    }
+
+    function renderRecipeCardItem(r, showCat) {
+      const cat = CATEGORIES.find(c => c.id === r.category) || CATEGORIES[0];
+      return `
+        <div onclick="navigate('recipe', '${r.id}')" class="cursor-pointer bg-white active:bg-pink-soft/50 rounded-2xl p-2.5 rose-border shadow-2xs flex items-center gap-3">
+          <div class="w-16 h-16 rounded-xl bg-pink-soft border border-pink-pastel overflow-hidden flex-shrink-0 flex items-center justify-center">
+            ${r.image ? `<img src="${r.image}" loading="lazy" alt="${escapeHtml(r.title)}" class="w-full h-full object-cover" />` : `<span class="text-2xl">${cat.icon}</span>`}
+          </div>
+          <div class="flex-1 min-w-0">
+            ${showCat ? `<span class="text-[10px] text-pink-dusty block">${cat.title}</span>` : ''}
+            <h3 class="font-bold text-sm text-pink-deep truncate">${escapeHtml(r.title)}</h3>
+            <div class="flex flex-wrap gap-2 mt-1 text-[11px] text-pink-dusty">
+              ${r.servings ? `<span>👥 ${escapeHtml(r.servings)}</span>` : ''}
+              ${r.cookTime ? `<span>🍲 ${escapeHtml(r.cookTime)}</span>` : ''}
+              ${r.difficulty > 0 ? `<span class="text-amber-400">${'★'.repeat(r.difficulty)}</span>` : ''}
+            </div>
+          </div>
+          <button type="button" onclick="toggleFavorite('${r.id}', event)" class="w-8 h-8 rounded-full bg-pink-soft flex items-center justify-center ${r.isFavorite ? 'text-pink-deep' : 'text-pink-dusty'} text-base">
+            ${r.isFavorite ? '♥' : '♡'}
+          </button>
+        </div>
+      `;
+    }
+
+    function renderRecipeDetail(recipeId) {
+      const container = document.getElementById('recipe-detail-container');
+      const recipe = recipes.find(r => r.id === recipeId);
+      if (!recipe) { navigate('toc'); return; }
+
+      const cat = CATEGORIES.find(c => c.id === recipe.category) || CATEGORIES[0];
+      const recipeChecked = checkedIngredients[recipe.id] || [];
+
+      container.innerHTML = `
+        <div class="flex items-center justify-between mb-3 no-print">
+          <button onclick="navigate('category', '${recipe.category}')" class="text-xs font-bold text-pink-deep bg-pink-soft px-2.5 py-1.5 rounded-xl">→ ${cat.title}</button>
+          <div class="flex items-center gap-1">
+            <button onclick="toggleFavorite('${recipe.id}')" class="text-xs bg-pink-soft ${recipe.isFavorite ? 'text-pink-deep' : 'text-pink-dusty'} px-2.5 py-1.5 rounded-xl font-bold">
+              ${recipe.isFavorite ? '♥ محبوب' : '♡ علاقه'}
+            </button>
+            <button onclick="openRecipeModal('${recipe.id}')" class="text-xs bg-pink-soft text-pink-deep px-2.5 py-1.5 rounded-xl font-bold">✏️</button>
+            <button onclick="deleteRecipe('${recipe.id}')" class="text-xs bg-red-50 text-red-500 px-2.5 py-1.5 rounded-xl font-bold">🗑️</button>
+          </div>
+        </div>
+
+        <div class="text-center mb-4">
+          <div class="inline-block px-7 py-1.5 rounded-2xl ribbon-banner">
+            <h2 class="font-bold text-xl text-pink-deep">♡ ${escapeHtml(recipe.title)} ♡</h2>
+          </div>
+        </div>
+
+        <div class="space-y-3 mb-4">
+          ${recipe.image ? `<div class="rounded-2xl overflow-hidden rose-border"><img src="${recipe.image}" alt="${escapeHtml(recipe.title)}" class="w-full h-48 object-cover" /></div>` : ''}
+
+          <div class="grid grid-cols-3 gap-2 bg-white rounded-2xl p-2.5 rose-border text-center text-xs">
+            <div>
+              <span class="text-pink-dusty block text-[10px]">👥 نفرات</span>
+              <span class="text-pink-deep font-bold">${recipe.servings ? escapeHtml(recipe.servings) : '—'}</span>
+            </div>
+            <div class="border-x border-pink-soft">
+              <span class="text-pink-dusty block text-[10px]">⏱️ آماده‌سازی</span>
+              <span class="text-pink-deep font-bold">${recipe.prepTime ? escapeHtml(recipe.prepTime) : '—'}</span>
+            </div>
+            <div>
+              <span class="text-pink-dusty block text-[10px]">🍲 مدت پخت</span>
+              <span class="text-pink-deep font-bold">${recipe.cookTime ? escapeHtml(recipe.cookTime) : '—'}</span>
+            </div>
+          </div>
+
+          ${recipe.difficulty > 0 ? `
+            <div class="flex items-center justify-between bg-white rounded-xl px-3 py-2 rose-border text-xs">
+              <span class="text-pink-dusty font-bold">⭐ درجه سختی:</span>
+              <span class="text-amber-400 text-sm">${'★'.repeat(recipe.difficulty)}<span class="text-gray-200">${'★'.repeat(5 - recipe.difficulty)}</span></span>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="space-y-3 mb-3">
+          <div class="bg-pink-soft/65 rounded-2xl p-3.5 rose-border">
+            <div class="flex items-center justify-between mb-2 border-b border-pink-pastel pb-1.5">
+              <h3 class="font-bold text-base text-pink-deep">🧺 مواد اولیه</h3>
+              <span class="text-[10px] text-pink-dusty no-print">لمس برای تیک زدن</span>
+            </div>
+            <ul class="space-y-2 text-xs">
+              ${(recipe.ingredients || []).map((item, idx) => {
+                const isChecked = recipeChecked.includes(idx);
+                return `
+                  <li onclick="toggleIngredient('${recipe.id}', ${idx})" class="cursor-pointer flex items-start gap-2 select-none">
+                    <span class="mt-0.5 w-4 h-4 rounded-md border flex-shrink-0 flex items-center justify-center text-[10px] ${isChecked ? 'bg-pink-deep border-pink-deep text-white' : 'bg-white border-pink-dusty'}">
+                      ${isChecked ? '✓' : ''}
+                    </span>
+                    <span class="leading-relaxed ${isChecked ? 'line-through text-pink-dusty/70' : 'text-[#5C3A42] font-medium'}">${escapeHtml(item)}</span>
+                  </li>
+                `;
+              }).join('')}
+            </ul>
+          </div>
+
+          <div class="bg-white rounded-2xl p-3.5 rose-border">
+            <h3 class="font-bold text-base text-pink-deep mb-2 border-b border-pink-soft pb-1.5">👩‍🍳 مراحل پخت</h3>
+            <ol class="space-y-2.5 text-xs">
+              ${(recipe.steps || []).map((step, idx) => `
+                <li class="flex items-start gap-2">
+                  <span class="w-5 h-5 rounded-full bg-pink-soft text-pink-deep font-bold text-[11px] flex-shrink-0 flex items-center justify-center border border-pink-pastel mt-0.5">
+                    ${toPersianDigits(idx + 1)}
+                  </span>
+                  <p class="leading-relaxed text-[#5C3A42]">${escapeHtml(step)}</p>
+                </li>
+              `).join('')}
+            </ol>
+          </div>
+        </div>
+
+        ${recipe.notes ? `
+          <div class="bg-pink-soft/80 rounded-2xl p-3.5 rose-border">
+            <h4 class="font-bold text-xs text-pink-deep mb-1">💡 نکات مهم و فوت‌وفن‌ها</h4>
+            <p class="text-xs leading-relaxed text-[#5C3A42] whitespace-pre-line">${escapeHtml(recipe.notes)}</p>
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function toggleIngredient(recipeId, idx) {
+      if (!checkedIngredients[recipeId]) checkedIngredients[recipeId] = [];
+      const list = checkedIngredients[recipeId];
+      const pos = list.indexOf(idx);
+      pos > -1 ? list.splice(pos, 1) : list.push(idx);
+      localStorage.setItem(STORAGE_KEYS.CHECKED, JSON.stringify(checkedIngredients));
+      renderRecipeDetail(recipeId);
+    }
+
+    function populateCategorySelect() {
+      const sel = document.getElementById('field-category');
+      if (!sel) return;
+      sel.innerHTML = CATEGORIES.filter(c => !c.isTipsPage).map(c => `<option value="${c.id}">${c.icon} ${c.title}</option>`).join('');
+    }
+
+    function openRecipeModal(recipeId = null, defaultCat = null) {
+      const modal = document.getElementById('recipe-modal');
+      document.getElementById('recipe-form').reset();
+      uploadedImageBase64 = '';
+      document.getElementById('image-preview-wrapper').classList.add('hidden');
+      document.getElementById('ai-img-status').classList.add('hidden');
+
+      if (recipeId) {
+        const r = recipes.find(item => item.id === recipeId);
+        if (!r) return;
+        document.getElementById('modal-title').textContent = '♡ ویرایش دستور پخت ♡';
+        document.getElementById('edit-recipe-id').value = r.id;
+        document.getElementById('field-title').value = r.title;
+        document.getElementById('field-category').value = r.category;
+        document.getElementById('field-servings').value = r.servings || '';
+        document.getElementById('field-prep').value = r.prepTime || '';
+        document.getElementById('field-cook').value = r.cookTime || '';
+        document.getElementById('field-ingredients').value = (r.ingredients || []).join('\n');
+        document.getElementById('field-steps').value = (r.steps || []).join('\n');
+        document.getElementById('field-notes').value = r.notes || '';
+        setDifficulty(r.difficulty || 0);
+
+        if (r.image) {
+          uploadedImageBase64 = r.image;
+          document.getElementById('field-image-preview').src = r.image;
+          document.getElementById('image-preview-wrapper').classList.remove('hidden');
+        }
+      } else {
+        document.getElementById('modal-title').textContent = '♡ ثبت دستور پخت جدید ♡';
+        document.getElementById('edit-recipe-id').value = '';
+        document.getElementById('field-category').value = defaultCat || currentCategoryId || 'rice';
+        setDifficulty(0);
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeRecipeModal() {
+      document.getElementById('recipe-modal').classList.add('hidden');
+    }
+
+    function setDifficulty(val) {
+      selectedDifficulty = val;
+      document.querySelectorAll('#star-selector span').forEach(star => {
+        const sVal = parseInt(star.dataset.val, 10);
+        star.className = sVal <= val ? 'text-amber-400' : 'text-gray-300';
+      });
+    }
+
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 550;
+          let width = img.width, height = img.height;
+          if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          document.getElementById('field-image-preview').src = uploadedImageBase64;
+          document.getElementById('image-preview-wrapper').classList.remove('hidden');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearRecipeImage() {
+      uploadedImageBase64 = '';
+      document.getElementById('image-preview-wrapper').classList.add('hidden');
+    }
+
+    async function generateCuteFoodImage() {
+      const foodName = document.getElementById('field-title').value.trim();
+      if (!foodName) { showToast('ابتدا نام غذا را بنویسید!'); return; }
+
+      const btn = document.getElementById('ai-img-btn');
+      const status = document.getElementById('ai-img-status');
+      btn.disabled = true;
+      status.classList.remove('hidden');
+      status.textContent = '✨ در حال نقاشی فانتزی غذا...';
+
+      const promptText = `Cute food illustration in Pinterest kawaii pastel pink aesthetic style of "${foodName}", soft pastel pink and warm cream background, clean storybook watercolor illustration, no text.`;
+      const apiKey = "";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-image:generateContent?key=${apiKey}`;
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }], generationConfig: { responseModalities: ['TEXT', 'IMAGE'] } })
+        });
+        const result = await response.json();
+        const part = result?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+        if (part?.inlineData?.data) {
+          uploadedImageBase64 = `data:${part.inlineData.mimeType || 'image/png'};base64,${part.inlineData.data}`;
+          document.getElementById('field-image-preview').src = uploadedImageBase64;
+          document.getElementById('image-preview-wrapper').classList.remove('hidden');
+          status.textContent = '🎀 تصویر فانتزی ساخته شد!';
+        } else {
+          status.textContent = 'امکان ساخت تصویر نبود؛ عکس آپلود کنید.';
+        }
+      } catch (err) {
+        status.textContent = 'خطا در ساخت تصویر.';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function saveRecipe(event) {
+      event.preventDefault();
+      const id = document.getElementById('edit-recipe-id').value;
+      const title = document.getElementById('field-title').value.trim();
+      const category = document.getElementById('field-category').value;
+      const servings = document.getElementById('field-servings').value.trim();
+      const prepTime = document.getElementById('field-prep').value.trim();
+      const cookTime = document.getElementById('field-cook').value.trim();
+      const ingredients = document.getElementById('field-ingredients').value.split('\n').map(l => l.trim()).filter(Boolean);
+      const steps = document.getElementById('field-steps').value.split('\n').map(l => l.trim()).filter(Boolean);
+      const notes = document.getElementById('field-notes').value.trim();
+
+      if (id) {
+        const index = recipes.findIndex(r => r.id === id);
+        if (index > -1) {
+          recipes[index] = { ...recipes[index], title, category, servings, prepTime, cookTime, difficulty: selectedDifficulty, ingredients, steps, notes, image: uploadedImageBase64 };
+        }
+        saveRecipesToStorage();
+        closeRecipeModal();
+        showToast('تغییرات ذخیره شد ♡');
+        navigate('recipe', id);
+      } else {
+        const newRecipe = { id: 'rec_' + Date.now(), title, category, servings, prepTime, cookTime, difficulty: selectedDifficulty, ingredients, steps, notes, isFavorite: false, image: uploadedImageBase64 };
+        recipes.push(newRecipe);
+        saveRecipesToStorage();
+        closeRecipeModal();
+        showToast('دستور جدید ثبت شد 🎀');
+        navigate('recipe', newRecipe.id);
+      }
+    }
+
+    function deleteRecipe(id) {
+      recipes = recipes.filter(r => r.id !== id);
+      saveRecipesToStorage();
+      showToast('دستور پخت حذف شد');
+      navigate('toc');
+    }
+
+    function saveRecipesToStorage() {
+      try { localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(recipes)); }
+      catch (e) { showToast('حافظه پر شده است؛ حجم عکس را کمتر کنید.'); }
+    }
+
+    function renderTipsList() {
+      const container = document.getElementById('tips-list-container');
+      if (!container) return;
+      if (cookingTips.length === 0) {
+        container.innerHTML = [1, 2].map(() => `
+          <div class="relative bg-pink-soft/75 rounded-2xl p-4 pt-5 rose-dashed min-h-[76px] flex items-center justify-center">
+            <span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-white px-2 rounded-full text-pink-deep text-xs border border-pink-pastel">♡</span>
+            <p class="text-xs text-pink-dusty/80">کادر یادداشت فوت‌وفن‌های آشپزی...</p>
+          </div>
+        `).join('');
+        return;
+      }
+
+      container.innerHTML = cookingTips.map(tip => `
+        <div class="relative bg-pink-soft/80 rounded-2xl p-3.5 pt-5 rose-border">
+          <span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-white px-2 rounded-full text-pink-deep text-xs border border-pink-pastel">♡</span>
+          <p class="text-xs leading-relaxed text-[#5C3A42] whitespace-pre-line">${escapeHtml(tip.text)}</p>
+          <div class="flex justify-end mt-1.5 no-print">
+            <button onclick="deleteCookingTip('${tip.id}')" class="text-[11px] text-pink-dusty">حذف</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addCookingTip() {
+      const input = document.getElementById('new-tip-input');
+      const text = input.value.trim();
+      if (!text) { showToast('متن نکته را بنویسید'); return; }
+      cookingTips.unshift({ id: 'tip_' + Date.now(), text });
+      localStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(cookingTips));
+      input.value = '';
+      renderTipsList();
+      showToast('نکته ثبت شد ♡');
+    }
+
+    function deleteCookingTip(id) {
+      cookingTips = cookingTips.filter(t => t.id !== id);
+      localStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(cookingTips));
+      renderTipsList();
+    }
+
+    function preparePrintBooklet() {
+      const printArea = document.getElementById('print-booklet-area');
+      let html = `
+        <div class="p-6 text-center border-4 border-pink-pastel rounded-3xl mb-6 print-page-break">
+          <h1 class="font-bold text-4xl text-pink-deep mb-2">دفتر آشپزی پریان</h1>
+          <p class="italic text-lg text-pink-dusty mb-6">My Little Pink Cookbook ♡</p>
+          <div class="text-right space-y-1.5 border-t border-pink-pastel pt-4">
+            ${CATEGORIES.map((c, i) => `<div class="flex justify-between text-xs border-b border-pink-soft py-1"><span>${toPersianDigits(i + 1)}. ${c.title}</span><span>${c.icon}</span></div>`).join('')}
+          </div>
+        </div>
+      `;
+      recipes.forEach((r, index) => {
+        html += `
+          <div class="p-5 border-2 border-pink-pastel rounded-3xl mb-5 print-page-break">
+            <h2 class="font-bold text-2xl text-pink-deep text-center mb-3">♡ ${escapeHtml(r.title)} ♡</h2>
+            ${r.image ? `<img src="${r.image}" class="w-48 h-36 object-cover rounded-2xl mx-auto mb-3" />` : ''}
+            <h4 class="font-bold text-pink-deep text-xs mb-1">مواد اولیه:</h4>
+            <ul class="list-disc pr-4 text-xs mb-3">${(r.ingredients || []).map(ing => `<li>${escapeHtml(ing)}</li>`).join('')}</ul>
+            <h4 class="font-bold text-pink-deep text-xs mb-1">مراحل پخت:</h4>
+            <ol class="list-decimal pr-4 text-xs">${(r.steps || []).map(st => `<li>${escapeHtml(st)}</li>`).join('')}</ol>
+          </div>
+        `;
+      });
+      printArea.innerHTML = html;
+      window.print();
+    }
+
+    function toPersianDigits(num) {
+      const persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+      return num.toString().replace(/\d/g, d => persian[d]);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function openHostModal() {
+      document.getElementById('host-modal')?.classList.remove('hidden');
+    }
+
+    function closeHostModal() {
+      document.getElementById('host-modal')?.classList.add('hidden');
+    }
+
+    function downloadStandaloneApp() {
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'index.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('فایل index.html دانلود شد 🎀');
+    }
+  </script>
+</body>
+</html>
