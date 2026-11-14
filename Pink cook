@@ -115,8 +115,8 @@
         <button id="pwa-install-btn" onclick="installPWA()" class="hidden text-[11px] font-bold bg-pink-deep text-white px-2.5 py-1.5 rounded-xl shadow-xs">
           📲 نصب
         </button>
-        <button onclick="openHostModal()" title="نصب و لینک دائمی" class="text-[11px] font-bold bg-pink-soft text-pink-deep px-2.5 py-1.5 rounded-xl border border-pink-pastel">
-          🚀 نصب اپ
+        <button onclick="openHostModal()" title="نصب در گیت‌هاب و پشتیبان‌گیری" class="text-[11px] font-bold bg-pink-soft text-pink-deep px-2.5 py-1.5 rounded-xl border border-pink-pastel">
+          ⚙️ نصب و بکاپ
         </button>
         <button onclick="preparePrintBooklet()" title="چاپ / PDF" class="text-xs font-bold text-rose-gold bg-pink-soft/70 px-2.5 py-1.5 rounded-xl">
           PDF
@@ -198,8 +198,8 @@
           </button>
 
           <button onclick="openHostModal()" class="w-full py-2.5 px-4 rounded-xl bg-pink-soft text-pink-deep font-bold text-xs border border-pink-pastel flex items-center justify-center gap-1.5">
-            <span>🚀</span>
-            <span>دریافت فایل و راه‌اندازی دائمی روی گوشی (PWA)</span>
+            <span>🐙</span>
+            <span>راهنمای نصب دائمی با GitHub (بدون تبلیغ و بدون فیلتر)</span>
           </button>
 
           <p class="text-[11px] text-pink-dusty">
@@ -437,30 +437,52 @@
 
   <!-- مودال راهنمای سرور رایگان و دانلود تک‌فایل PWA -->
   <div id="host-modal" class="hidden fixed inset-0 bg-[#4A2530]/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-    <div class="bg-cream-card w-full max-w-md rounded-[2rem] p-5 rose-border shadow-2xl fade-in space-y-3.5 text-right">
+    <div class="bg-cream-card w-full max-w-md max-h-[90vh] overflow-y-auto rounded-[2rem] p-5 rose-border shadow-2xl fade-in space-y-3.5 text-right">
       <div class="flex items-center justify-between border-b border-pink-pastel pb-2.5">
-        <h3 class="font-bold text-base text-pink-deep">🚀 نصب دائمی روی گوشی (سرور رایگان)</h3>
+        <h3 class="font-bold text-base text-pink-deep">🐙 نصب دائمی روی GitHub Pages (بدون تبلیغ)</h3>
         <button onclick="closeHostModal()" class="w-7 h-7 rounded-full bg-pink-soft text-pink-deep font-bold text-xs flex items-center justify-center">✕</button>
       </div>
 
       <p class="text-xs leading-relaxed text-[#5C3A42]">
-        چون محیط گفتگو به سرورهای خارجی دسترسی مستقیم برای آپلود ندارد، تمام تنظیمات <b>PWA (نصب به‌عنوان اپلیکیشن موبایل)</b> داخل همین یک فایل قرار داده شده است. کافیست یکی از دو روش زیر را انجام دهید:
+        سرویس <b>GitHub Pages</b> کاملاً رایگان است، <b>هیچ تبلیغاتی روی برنامه نمی‌اندازد</b> و بدون فیلترشکن باز می‌شود. برای ساخت لینک دائمی در ۲ دقیقه:
       </p>
 
-      <div class="bg-pink-soft/70 rounded-2xl p-3.5 rose-border space-y-2.5">
-        <p class="text-xs font-bold text-pink-deep">گام ۱: دانلود فایل آماده برنامه</p>
-        <button onclick="downloadStandaloneApp()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-l from-pink-deep to-pink-dusty text-white font-bold text-xs shadow-ribbon flex items-center justify-center gap-2">
-          <span>📥 دانلود فایل index.html دفتر آشپزی پریان</span>
-        </button>
+      <div class="bg-pink-soft/70 rounded-2xl p-3.5 rose-border space-y-2">
+        <p class="text-xs font-bold text-pink-deep">گام ۱: دریافت کد یا فایل برنامه</p>
+        <div class="grid grid-cols-1 gap-2">
+          <button onclick="copySourceCode()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-l from-pink-deep to-pink-dusty text-white font-bold text-xs shadow-ribbon flex items-center justify-center gap-2">
+            <span>📋 کپی مستقیم کل کد (مطمئن‌ترین روش بدون خطای 404)</span>
+          </button>
+          <button onclick="downloadStandaloneApp()" class="w-full py-2 px-4 rounded-xl bg-white border border-pink-pastel text-pink-deep font-bold text-xs flex items-center justify-center gap-2">
+            <span>📥 یا دانلود فایل index.html</span>
+          </button>
+        </div>
       </div>
 
       <div class="bg-white rounded-2xl p-3.5 rose-border space-y-2 text-xs text-[#5C3A42]">
-        <p class="font-bold text-pink-deep">گام ۲: قرار دادن روی لینک دائمی رایگان (۳۰ ثانیه)</p>
+        <p class="font-bold text-pink-deep">گام ۲: رفع خطای 404 و ساخت صفحه در GitHub</p>
         <ol class="list-decimal pr-4 space-y-1.5 leading-relaxed">
-          <li>وارد سایت رایگان <b>app.netlify.com/drop</b> یا <b>tiiny.host</b> شوید.</li>
-          <li>فایل <code>index.html</code> دانلودشده را داخل صفحه بکشید و رها کنید.</li>
-          <li>لینک اختصاصی که به شما می‌دهد را در گوشی باز کنید و دکمه <b>«📲 نصب روی گوشی»</b> یا <b>Add to Home Screen</b> را بزنید تا آیکون <b>«دفتر آشپزی پریان»</b> کنار بقیه برنامه‌های گوشی اضافه شود!</li>
+          <li>ابتدا دکمه <b>«📋 کپی مستقیم کل کد»</b> در بالا را بزنید.</li>
+          <li>وارد مخزن (Repository) خود در گیت‌هاب شوید و روی <b>Add file</b> و سپس <b>Create new file</b> کلیک کنید (یا اگر قبلاً مستقیم وارد شدید روی <b>creating a new file</b> کلیک کنید).</li>
+          <li>در کادر نام فایل (Name your file...) دقیقاً با حروف کوچک بنویسید: <code class="bg-pink-soft px-1.5 py-0.5 rounded font-bold text-pink-deep">index.html</code></li>
+          <li>در کادر بزرگ پایین صفحه، کد کپی‌شده را <b>Paste (چسباندن)</b> کنید و دکمه سبز <b>Commit changes</b> را بزنید.</li>
+          <li>وارد تب <b>Settings ⚙️</b> و بخش <b>Pages</b> شوید، زیر <b>Branch</b> گزینه <b>main</b> را انتخاب و <b>Save</b> کنید.</li>
         </ol>
+      </div>
+
+      <!-- بخش پشتیبان‌گیری اطلاعات برای انتقال راحت بین نسخه‌ها -->
+      <div class="bg-pink-soft/50 rounded-2xl p-3.5 rose-dashed space-y-2">
+        <p class="text-xs font-bold text-pink-deep">💾 پشتیبان‌گیری و انتقال دستورهای ثبت‌شده</p>
+        <p class="text-[11px] text-[#5C3A42]">می‌توانید از تمام غذاها و نکات ثبت‌شده فایل پشتیبان بگیرید تا هر زمان روی گوشی جدید هم وارد کنید:</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="exportBackupJSON()" class="bg-white border border-pink-pastel text-pink-deep font-bold text-xs py-2 px-2 rounded-xl">
+            📤 دانلود فایل پشتیبان
+          </button>
+          <label class="cursor-pointer bg-white border border-pink-pastel text-pink-deep font-bold text-xs py-2 px-2 rounded-xl text-center">
+            📥 بازیابی پشتیبان
+            <input type="file" accept=".json" onchange="importBackupJSON(event)" class="hidden" />
+          </label>
+        </div>
       </div>
 
       <button onclick="closeHostModal()" class="w-full py-2.5 rounded-xl bg-pink-soft text-pink-deep font-bold text-xs">متوجه شدم ♡</button>
@@ -1086,8 +1108,33 @@
       document.getElementById('host-modal')?.classList.add('hidden');
     }
 
+    function getCleanHtmlSource() {
+      const clone = document.documentElement.cloneNode(true);
+      clone.querySelector('#host-modal')?.classList.add('hidden');
+      clone.querySelector('#recipe-modal')?.classList.add('hidden');
+      clone.querySelector('#toast-box')?.classList.add('hidden');
+      return '<!DOCTYPE html>\n' + clone.outerHTML;
+    }
+
+    function copySourceCode() {
+      const htmlContent = getCleanHtmlSource();
+      const ta = document.createElement('textarea');
+      ta.value = htmlContent;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast('کل کد کپی شد! در گیت‌هاب داخل index.html پیست کنید 📋');
+      } catch (e) {
+        showToast('امکان کپی نبود؛ از دکمه دانلود استفاده کنید.');
+      }
+      document.body.removeChild(ta);
+    }
+
     function downloadStandaloneApp() {
-      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const htmlContent = getCleanHtmlSource();
       const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1097,7 +1144,44 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('فایل index.html دانلود شد 🎀');
+      showToast('فایل تمیز index.html دانلود شد 🎀');
+    }
+
+    function exportBackupJSON() {
+      const data = { recipes, cookingTips, checkedIngredients, exportedAt: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'parian-cookbook-backup.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('فایل پشتیبان دانلود شد 💾');
+    }
+
+    function importBackupJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (Array.isArray(data.recipes)) recipes = data.recipes;
+          if (Array.isArray(data.cookingTips)) cookingTips = data.cookingTips;
+          if (data.checkedIngredients) checkedIngredients = data.checkedIngredients;
+          localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(recipes));
+          localStorage.setItem(STORAGE_KEYS.TIPS, JSON.stringify(cookingTips));
+          localStorage.setItem(STORAGE_KEYS.CHECKED, JSON.stringify(checkedIngredients));
+          renderCategoriesList();
+          closeHostModal();
+          showToast('اطلاعات با موفقیت بازیابی شد 🎀');
+        } catch (err) {
+          showToast('فایل پشتیبان معتبر نیست!');
+        }
+      };
+      reader.readAsDataURL ? reader.readAsText(file) : null;
     }
   </script>
 </body>
